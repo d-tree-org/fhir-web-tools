@@ -1,4 +1,5 @@
 import Search from "./search";
+import Toolbar from "./toolbar";
 
 export default async function Page({
   searchParams,
@@ -6,11 +7,11 @@ export default async function Page({
   searchParams: { q: string };
 }) {
   return (
-    <main>
+    <main className="container mt-6">
       <pre>{searchParams.q}</pre>
-      <Search />
+      {/* <Search />
+       */}
+      <Toolbar />
     </main>
   );
 }
-
-
