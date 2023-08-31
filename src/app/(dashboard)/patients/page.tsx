@@ -1,4 +1,4 @@
-import Search from "./search";
+import { fetchData } from "./actions";
 import Toolbar from "./toolbar";
 
 export default async function Page({
@@ -11,7 +11,8 @@ export default async function Page({
       <pre>{searchParams.q}</pre>
       {/* <Search />
        */}
-      <Toolbar />
+      <Toolbar action={fetchData}/>
     </main>
   );
 }
+

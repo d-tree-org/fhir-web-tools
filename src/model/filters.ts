@@ -23,7 +23,7 @@ export const patientFilters: Filter[] = [
   {
     id: "patient-search-by-name",
     name: "Search by name",
-    template: "Patient?given={name}",
+    template: "given={name}",
     params: [
       {
         name: "name",
@@ -35,7 +35,7 @@ export const patientFilters: Filter[] = [
   {
     id: "patient-search-by-fullname",
     name: "Search by Fullname",
-    template: "Patient?given={given}&family={family}",
+    template: "given={given}&family={family}",
     params: [
       {
         name: "given",

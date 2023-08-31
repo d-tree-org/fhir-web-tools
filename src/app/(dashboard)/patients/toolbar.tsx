@@ -1,23 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { DataFacetedFilter } from "./input-filter";
-import { Filter, FilterFormData, patientFilters } from "@/model/filters";
+import { FilterFormData, patientFilters } from "@/model/filters";
 import { Separator } from "@/components/ui/separator";
 import FilterCard from "./filter-card";
 import { useForm, FormProvider, Control, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 
-type Props = {};
+type Props = {
+  action: (data: FormData) => void;
+};
 
-const Toolbar = (props: Props) => {
+const Toolbar = ({ action }: Props) => {
   const methods = useForm<FilterFormData>({
     defaultValues: {
       filters: [],
     },
   });
-  const onSubmit = (data: any) => console.log(data);
   console.log(methods.formState.isDirty);
+
+  const onSubmit = (data: FilterFormData) => {
+    const form = new FormData();
+    form.append("data", JSON.stringify(data));
+    action(form);
+  };
 
   return (
     <FormProvider {...methods}>
