@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getAccessToken } from "../auth/sessionTokenAccessor";
 
-export const instance = axios.create({
+export const fhirServer = axios.create({
   baseURL: process.env.FHIR_BASE_URL,
   headers: {
     "Content-Type": "application/json",
@@ -8,9 +9,12 @@ export const instance = axios.create({
   },
 });
 
-instance.interceptors.request.use(
-  (config) => {
-    console.log(config);
+fhirServer.interceptors.request.use(
+  async (config) => {
+    const token = await getAccessToken();
+    console.log(token);
+    
+    config.headers.Authorization = `Bearer ${token}`.trim();
     return config;
   },
   (error) => Promise.reject(error)
