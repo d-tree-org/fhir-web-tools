@@ -5,6 +5,10 @@ const actions = [
     name: "Patients",
     link: "/patients",
   },
+  {
+    name: "Facilities",
+    link: "/facilities",
+  },
 ];
 
 export default async function Page() {

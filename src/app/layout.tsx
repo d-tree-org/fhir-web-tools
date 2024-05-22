@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="cupcake">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className + " h-[unset]"}>{children}</body>
     </html>
   )
 }

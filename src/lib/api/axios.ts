@@ -12,7 +12,6 @@ export const fhirServer = axios.create({
 fhirServer.interceptors.request.use(
   async (config) => {
     const token = await getAccessToken();
-    console.log(token);
     
     config.headers.Authorization = `Bearer ${token}`.trim();
     return config;

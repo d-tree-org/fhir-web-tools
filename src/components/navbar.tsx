@@ -1,4 +1,5 @@
-import { User, getServerSession } from "next-auth";
+import { User } from "next-auth";
+import { auth } from "@/lib/auth";
 import React from "react";
 import { LoginButton, LogoutButton, ProfileButton } from "./buttons.component";
 import Link from "next/link";
@@ -8,7 +9,7 @@ type Props = {
 };
 
 const Navbar = async () => {
-  const session = await getServerSession();
+  const session = await auth();
 
   return <NavbarContainer user={session?.user as User} />;
 };
