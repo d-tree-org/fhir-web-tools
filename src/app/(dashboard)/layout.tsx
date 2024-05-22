@@ -1,4 +1,5 @@
 import Navbar from "@/components/navbar";
+import NextTopLoader from 'nextjs-toploader';
 
 export default function DashboardLayout({
   children,
@@ -8,6 +9,7 @@ export default function DashboardLayout({
   return (
     <main>
       <Navbar />
+      <NextTopLoader />
       {children}
     </main>
   );

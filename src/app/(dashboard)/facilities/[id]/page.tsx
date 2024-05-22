@@ -1,18 +1,16 @@
 import { fhirServer } from "@/lib/api/axios";
-import { Bundle, BundleEntry } from "@/model/resources";
+import { BundleEntry } from "@/model/resources";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const data = await fetchData(params.id);
   return (
     <div className="container">
-      <div className="w-full p-4 flex flex-row flex-wrap gap-2">
+      <div className="stats shadow">
         {data.map((location) => {
           return (
-            <div key={location.id} className="card w-96 bg-base-100 shadow-xl">
-              <div className="card-body">
-                <p>{location.title}</p>
-                <h2 className="card-title">{location.count}</h2>
-              </div>
+            <div key={location.id} className="stat">
+              <p className="stat-title">{location.title}</p>
+              <h2 className="stat-value text-primary">{location.count}</h2>
             </div>
           );
         })}
@@ -24,7 +22,11 @@ export default async function Page({ params }: { params: { id: string } }) {
 const fetchData: (id: string) => Promise<CountSummary[]> = async (id) => {
   try {
     const entries: BundleEntry[] = [];
-    const titles = ["Exposed Infants", "Clients Already on ART"];
+    const titles = [
+      "Exposed Infants",
+      "Clients Already on ART",
+      "Newly Diagnosed Client",
+    ];
     entries.push(
       addFetch("/Patient", {
         _tag: [
@@ -40,6 +42,16 @@ const fetchData: (id: string) => Promise<CountSummary[]> = async (id) => {
         _tag: [
           `http://smartregister.org/fhir/location-tag|${id}`,
           "https://d-tree.org/fhir/patient-meta-tag|client-already-on-art",
+        ],
+        _summary: "count",
+      })
+    );
+
+    entries.push(
+      addFetch("/Patient", {
+        _tag: [
+          `http://smartregister.org/fhir/location-tag|${id}`,
+          "https://d-tree.org/fhir/patient-meta-tag|newly-diagnosed-client",
         ],
         _summary: "count",
       })
