@@ -21,13 +21,25 @@ export interface FilterParams {
 
 export const patientFilters: Filter[] = [
   {
-    id: "patient-search-by-name",
-    name: "Search by name",
+    id: "patient-search-by-first-name",
+    name: "Search by Firstname",
     template: "given={name}",
     params: [
       {
         name: "name",
-        title: "Enter name",
+        title: "Enter Firstname",
+        type: FilterParamType.string,
+      },
+    ],
+  },
+  {
+    id: "patient-search-by-last-name",
+    name: "Search by Lastname",
+    template: "family={name}",
+    params: [
+      {
+        name: "name",
+        title: "Enter Lastname",
         type: FilterParamType.string,
       },
     ],
@@ -45,6 +57,18 @@ export const patientFilters: Filter[] = [
       {
         name: "family",
         title: "Last name",
+        type: FilterParamType.string,
+      },
+    ],
+  },
+  {
+    id: "patient-search-by-identifier",
+    name: "Search by ART/HCC #",
+    template: "identifier={identifier}",
+    params: [
+      {
+        name: "identifier",
+        title: "Enter ART/HCC Number",
         type: FilterParamType.string,
       },
     ],
