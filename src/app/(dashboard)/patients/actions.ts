@@ -3,6 +3,7 @@
 import { fhirServer } from "@/lib/api/axios";
 import { FilterFormData } from "@/model/filters";
 import format from "string-template";
+import { Patient } from "./types";
 
 export async function fetchData(formData: FormData) {
   try {
@@ -29,8 +30,28 @@ export async function fetchData(formData: FormData) {
     console.log(queries);
 
     const res = await fhirServer.get("/Patient?" + queries, {});
-    console.log(res.data);
+    return res.data.entry.map((entry: any) => createPatient(entry.resource));
   } catch (error) {
     console.error(error);
+    return [];
   }
 }
+
+const createPatient = (data: any): Patient => {
+  return {
+    id: data.id,
+    identifier: data.identifier[0]?.value ?? "NA",
+    name: data.name[0].given[0] + " " + data.name[0].family,
+    gender: data.gender,
+    birthDate: data.birthDate,
+    phone: data.telecom[0]?.value?.split("|")[1] ?? "NA",
+    active: data.active,
+    address: data.address[0]?.district ?? "NA",
+    addressDescription: data.address[0]?.text ?? "NA",
+    registrationDate:
+      data.meta.tag.find(
+        (e: any) => e.system === "https://d-tree.org/fhir/created-on-tag"
+      )?.code ?? "NA",
+    registratedBy: data.generalPractitioner[0]?.display ?? "NA",
+  };
+};
