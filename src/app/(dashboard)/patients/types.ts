@@ -4,10 +4,12 @@ export type Patient = {
     name: string,
     gender: string,
     birthDate: string,
-    phone: string,
     active: boolean,
-    address: string,
-    addressDescription: string,
+    address: {facility:string, physical: string}[],
     registrationDate: string,
     registratedBy: string,
+    phoneNumbers: {
+        number: string,
+        owner: string,
+    }[],
 }

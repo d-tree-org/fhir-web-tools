@@ -30,7 +30,9 @@ export async function fetchData(formData: FormData) {
     console.log(queries);
 
     const res = await fhirServer.get("/Patient?" + queries, {});
-    return res.data.entry.map((entry: any) => createPatient(entry.resource));
+    return (
+      res.data.entry?.map((entry: any) => createPatient(entry.resource)) ?? []
+    );
   } catch (error) {
     console.error(error);
     return [];
@@ -44,10 +46,20 @@ const createPatient = (data: any): Patient => {
     name: data.name[0].given[0] + " " + data.name[0].family,
     gender: data.gender,
     birthDate: data.birthDate,
-    phone: data.telecom[0]?.value?.split("|")[1] ?? "NA",
+    phoneNumbers:
+      data.telecom?.map((value: any) => {
+        var array = value.value?.split("|");
+        return {
+          number: array[1],
+          owner: array[2],
+        };
+      }) ?? [],
     active: data.active,
-    address: data.address[0]?.district ?? "NA",
-    addressDescription: data.address[0]?.text ?? "NA",
+    address:
+      data.address?.map((value: any) => ({
+        facility: value.district ?? "NA",
+        physical: data.address[0]?.text ?? "NA",
+      })) ?? [],
     registrationDate:
       data.meta.tag.find(
         (e: any) => e.system === "https://d-tree.org/fhir/created-on-tag"

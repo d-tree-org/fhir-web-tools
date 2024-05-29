@@ -56,12 +56,23 @@ const Toolbar = ({ action }: Props) => {
                 </span>
                 <span className="badge">Gender: {patient.gender}</span>
                 <span className="badge">BirthDate: {patient.birthDate}</span>
-                <span className="badge">Phone: {patient.phone}</span>
+                {patient.phoneNumbers.map((value, index) => (
+                  <div key={value.number} className="flex flex-row gap-2">
+                    <span className="badge">
+                      Phone {index + 1}: {value.number}
+                    </span>
+                    <span className="badge">
+                      Owner: {value.owner}
+                    </span>
+                  </div>
+                ))}
                 <span className="badge">Active: {patient.active}</span>
-                <span className="badge">Address: {patient.address}</span>
-                <span className="badge">
-                  Address Text: {patient.addressDescription}
-                </span>
+                {patient.address.map((address, index) => (
+                  <div key={address.facility} className="flex flex-row gap-2">
+                    <span className="badge">Facility: {address.facility}</span>
+                    <span className="badge">Physical: {address.physical}</span>
+                  </div>
+                ))}
                 <span className="badge">
                   Registration Date: {patient.registrationDate}
                 </span>
