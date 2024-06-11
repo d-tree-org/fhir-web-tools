@@ -8,6 +8,7 @@ import FilterCard from "./filter-card";
 import { useForm, FormProvider, Control, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Patient } from "./types";
+import Link from "next/link";
 
 type Props = {
   action: (data: FormData) => Promise<any>;
@@ -49,7 +50,12 @@ const Toolbar = ({ action }: Props) => {
         {patients.map((patient) => (
           <div key={patient.name} className="card w-full bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title">{patient.name}</h2>
+              <h2 className="card-title">
+                <span>{patient.name}</span>
+                <Link href={`/patients/${patient.id}`}>
+                  <a className="btn btn-primary">View</a>{" "}
+                </Link>
+              </h2>
               <div className="flex flex-col gap-2">
                 <span className="badge">
                   ART/HCC Number: {patient.identifier}
@@ -61,9 +67,7 @@ const Toolbar = ({ action }: Props) => {
                     <span className="badge">
                       Phone {index + 1}: {value.number}
                     </span>
-                    <span className="badge">
-                      Owner: {value.owner}
-                    </span>
+                    <span className="badge">Owner: {value.owner}</span>
                   </div>
                 ))}
                 <span className="badge">Active: {patient.active}</span>
