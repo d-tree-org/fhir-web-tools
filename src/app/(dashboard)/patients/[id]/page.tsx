@@ -11,6 +11,9 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import Link from "next/link";
 import { fhirR4 } from "@smile-cdr/fhirts";
 
+
+export const maxDuration = 60;
+
 export default async function Page({ params }: { params: { id: string } }) {
   const {
     carePlanData: carePlan,
