@@ -1,7 +1,12 @@
+import { fhirR4 } from "@smile-cdr/fhirts";
+
 export type CarePlanData = {
-  title: string;
+  id: string;
+  title?: string;
   patientId: string;
-  requester: string;
+  requester: any;
+  author: any;
+  tags: fhirR4.Coding[];
   activities: CarePlanDataActivity[];
 };
 

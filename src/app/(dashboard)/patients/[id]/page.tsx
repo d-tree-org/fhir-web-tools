@@ -9,9 +9,14 @@ import { patientFilters } from "@/model/filters";
 import format from "string-template";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import Link from "next/link";
+import { fhirR4 } from "@smile-cdr/fhirts";
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const { carePlan, patient, duplicates } = await fetchData(params.id);
+  const {
+    carePlanData: carePlan,
+    patient,
+    duplicates,
+  } = await fetchData(params.id);
   const tabs = [{ title: "Care Plan", id: "general" }];
   if (duplicates.length > 0) {
     tabs.push({
@@ -57,8 +62,8 @@ export default async function Page({ params }: { params: { id: string } }) {
                 <div className="flex flex-col gap-4 w-full p-8">
                   <div className="flex flex-col gap-4 ">
                     {duplicates.map((patient) => (
-                      <>
-                        <div key={patient.id} className="flex flex-col gap-2">
+                      <div key={patient.id} className="card  bg-base-200">
+                        <div className="card-body flex flex-col gap-2">
                           <div className="flex flex-row gap-2">
                             <h1>{patient.name}</h1>
                             <p>{patient.id}</p>
@@ -73,7 +78,7 @@ export default async function Page({ params }: { params: { id: string } }) {
                             <p>{patient.identifier}</p>
                           </div>
                         </div>
-                      </>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -89,14 +94,15 @@ export default async function Page({ params }: { params: { id: string } }) {
 const fetchData = async (
   id: string
 ): Promise<{
-  carePlan?: CarePlanData | null;
+  carePlanData?: CarePlanData | null;
+  carePlan?: fhirR4.CarePlan | null;
   patient?: Patient | null;
   duplicates: Patient[];
 }> => {
   const data = await fetchCarePlan(id);
   const res = await fetchUserData(id);
   return {
-    carePlan: data,
+    carePlanData: data?.carePlanData,
     patient: res.patient,
     duplicates: res.duplicates,
   };

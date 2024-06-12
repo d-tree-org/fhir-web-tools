@@ -1,7 +1,13 @@
 import { fhirServer } from "@/lib/api/axios";
 import { CarePlanData, CarePlanDataActivity } from "./types";
+import { fhirR4 } from "@smile-cdr/fhirts";
 
-export const fetchCarePlan = async (id: string) => {
+export const fetchCarePlan = async (
+  id: string
+): Promise<{
+  carePlanData: CarePlanData;
+  carePlan: fhirR4.CarePlan;
+} | null> => {
   try {
     const res = await fhirServer.get("/CarePlan", {
       params: {
@@ -13,8 +19,10 @@ export const fetchCarePlan = async (id: string) => {
     const data = res.data.entry?.[0];
     if (data != undefined) {
       const resource = data.resource;
-      console.log(resource);
-      return createDetails(id, resource);
+      return {
+        carePlanData: await createDetails(id, resource),
+        carePlan: resource,
+      };
     }
     return null;
   } catch (error) {
@@ -25,10 +33,13 @@ export const fetchCarePlan = async (id: string) => {
 
 const createDetails = async (
   patienyId: string,
-  carePlan: any
+  carePlan: fhirR4.CarePlan
 ): Promise<CarePlanData> => {
   const tasks = await getTasksFromCarePlan(carePlan);
   return {
+    id: carePlan.id ?? "",
+    author: carePlan.author,
+    tags: carePlan?.meta?.tag ?? [],
     title: carePlan.title,
     patientId: patienyId,
     activities: tasks,
@@ -37,7 +48,7 @@ const createDetails = async (
 };
 
 const getTasksFromCarePlan = async (
-  carePlan: any
+  carePlan: fhirR4.CarePlan
 ): Promise<CarePlanDataActivity[]> => {
   const taskIds: CarePlanDataActivity[] = (carePlan.activity as any[]).map(
     (activity: any): CarePlanDataActivity => {
