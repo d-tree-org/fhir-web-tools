@@ -1,189 +1,144 @@
+import { CarePlanContainer } from "./careplanContainer";
+import { fixTasks } from "./actions";
+import { fetchCarePlan } from "./fetch";
+import { CarePlanData } from "./types";
 import { fhirServer } from "@/lib/api/axios";
+import { createPatient } from "@/lib/fhir/patient";
+import { Patient } from "@/lib/fhir/types";
+import { patientFilters } from "@/model/filters";
+import format from "string-template";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import Link from "next/link";
 
 export default async function Page({ params }: { params: { id: string } }) {
-  const data = await fetchCarePlan(params.id);
+  const { carePlan, patient, duplicates } = await fetchData(params.id);
+  const tabs = [{ title: "Care Plan", id: "general" }];
+  if (duplicates.length > 0) {
+    tabs.push({
+      title: `Possible duplicates (${duplicates.length + 1})`,
+      id: "duplicates",
+    });
+  }
   return (
     <div className="container">
-      <div className="p-2 ">
-        <button className="btn btn-primary">Verify and fix careplan</button>
-      </div>
       <div className="flex flex-col gap-4">
-        {data && <CarePlanContainer data={data} />}
+        <div className="">
+          {patient && (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-row flex-wrap gap-2 justify-between">
+                <h1 className="text-2xl font-bold">{patient.name}</h1>
+                <div></div>
+              </div>
+              <p className="text-sm text-gray-500">{patient.id}</p>
+            </div>
+          )}
+        </div>
+        <TabGroup>
+          <TabList className="flex gap-4 tabs tabs-boxed">
+            {tabs.map((tab) => (
+              <Tab key={tab.id} className="tab data-[selected]:tab-active">
+                {tab.title}
+              </Tab>
+            ))}
+          </TabList>
+          <TabPanels className="mt-3">
+            <TabPanel key="general" className="rounded-xl bg-white/5 p-3">
+              {carePlan && (
+                <CarePlanContainer data={carePlan} action={fixTasks} />
+              )}
+              {!carePlan && (
+                <div className="flex flex-col gap-4 w-full p-8">
+                  <h1>No care plan found</h1>
+                </div>
+              )}
+            </TabPanel>
+            {duplicates.length > 0 && (
+              <TabPanel key="duplicates" className="rounded-xl p-3">
+                <div className="flex flex-col gap-4 w-full p-8">
+                  <div className="flex flex-col gap-4 ">
+                    {duplicates.map((patient) => (
+                      <>
+                        <div key={patient.id} className="flex flex-col gap-2">
+                          <div className="flex flex-row gap-2">
+                            <h1>{patient.name}</h1>
+                            <p>{patient.id}</p>
+                            <Link
+                              href={`/patients/${patient.id}`}
+                              className="btn btn-secondary"
+                            >
+                              View
+                            </Link>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <p>{patient.identifier}</p>
+                          </div>
+                        </div>
+                      </>
+                    ))}
+                  </div>
+                </div>
+              </TabPanel>
+            )}
+          </TabPanels>
+        </TabGroup>
       </div>
     </div>
   );
 }
 
-const CarePlanContainer = ({ data }: { data: CarePlanData }) => {
-  return (
-    <>
-      <h6>Tasks</h6>
-      {data.activities?.map((activity: CarePlanDataActivity) => {
-        return (
-          <details key={activity.task} className="collapse bg-base-200">
-            <summary className="collapse-title text-xl font-medium">
-              <p>{activity.task}</p>
-              <div className="flex flex-row gap-2">
-                {activity.taskExists == false && (
-                  <div className="badge badge-error gap-2">Task Missing</div>
-                )}
-                {activity.isTaskAndCarePlanSameStatus == false && (
-                  <div className="badge badge-error gap-2">
-                    Status different
-                  </div>
-                )}
-              </div>
-            </summary>
-            <div className="collapse-content">
-              <div className="flex flex-col p-2">
-                <div className="flex flex-row gap-2">
-                  <span className="badge badge-secondary">
-                    CarePlan Status: {activity.carePlanActivityStatus}
-                  </span>
-                  <span className="badge badge-secondary">
-                    Task Status: {activity.taskStatus}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </details>
-        );
-      })}
-    </>
-  );
-};
-
-type CarePlanData = {
-  title: string;
-  activities: CarePlanDataActivity[];
-};
-
-type CarePlanDataActivity = {
-  task: string;
-  taskReference?: string;
-  carePlanActivityStatus: string;
-  taskStatus: string;
-  isTaskAndCarePlanSameStatus: boolean;
-  taskExists: boolean;
-  taskType: "normal" | "scheduled";
-};
-
-const fetchCarePlan = async (id: string) => {
-  try {
-    const res = await fhirServer.get("/CarePlan", {
-      params: {
-        subject: id,
-        status: "active",
-      },
-    });
-
-    const data = res.data.entry?.[0];
-    if (data != undefined) {
-      const resource = data.resource;
-      console.log(resource);
-      return createDetails(resource);
-    }
-    return null;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-};
-
-const createDetails = async (carePlan: any): Promise<CarePlanData> => {
-  const tasks = await getTasksFromCarePlan(carePlan);
+const fetchData = async (
+  id: string
+): Promise<{
+  carePlan?: CarePlanData | null;
+  patient?: Patient | null;
+  duplicates: Patient[];
+}> => {
+  const data = await fetchCarePlan(id);
+  const res = await fetchUserData(id);
   return {
-    title: carePlan.title,
-    activities: tasks,
+    carePlan: data,
+    patient: res.patient,
+    duplicates: res.duplicates,
   };
 };
 
-const getTasksFromCarePlan = async (
-  carePlan: any
-): Promise<CarePlanDataActivity[]> => {
-  const taskIds: CarePlanDataActivity[] = carePlan.activity.map(
-    (activity: any) => {
-      const reference = activity.outcomeReference?.[0]?.reference;
-      if (reference == undefined || reference == null) {
-        return {
-          task: activity.detail.description,
-          carePlanActivityStatus: activity.detail.status,
-          taskStatus: "unknown",
-          isTaskAndCarePlanSameStatus: false,
-          taskExists: false,
-          taskType: "scheduled",
-        };
-      }
-      const taskId = reference.split("/").pop();
-      if (!taskId) {
-        throw new Error(
-          `Invalid reference format in activity detail: ${reference}`
-        );
-      }
-
-      return {
-        task: activity.detail.description,
-        taskReference: taskId,
-        carePlanActivityStatus: activity.detail.status,
-        taskStatus: "unknown",
-        isTaskAndCarePlanSameStatus: false,
-        taskExists: false,
-      };
-    }
-  );
-  const tasksPromises = taskIds.map(async (task: CarePlanDataActivity) => {
-    if (task.taskReference == undefined || task.taskReference == null) {
-      return task;
-    }
-    const result = await fetchTask(task.taskReference);
-    if (!result) {
-      return {
-        ...task,
-        taskExists: false,
-      };
-    }
-    return {
-      ...task,
-      taskStatus: mapTaskToCarePlan(result.status),
-      isTaskAndCarePlanSameStatus: areStatusTheSame(
-        task.carePlanActivityStatus,
-        result.status
-      ),
-      taskExists: true,
-    };
+const fetchUserData = async (id: string) => {
+  const res = await fhirServer.get("/Patient/" + id);
+  const data = res.data;
+  const patient = createPatient(data);
+  const duplicates = await fetchPosibleDuplicates({
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    identifier: patient.identifier,
   });
-  const tasks = await Promise.all(tasksPromises);
-
-  return tasks;
+  return { patient, duplicates: duplicates.filter((e) => e.id !== patient.id) };
 };
 
-async function fetchTask(taskId: string): Promise<any> {
-  try {
-    const response = await fhirServer.get(`Task/${taskId}`);
-    return response.data;
-  } catch (error) {
-    return null;
-  }
-}
+const fetchPosibleDuplicates = async ({
+  firstName,
+  lastName,
+  identifier,
+}: {
+  firstName: string;
+  lastName: string;
+  identifier: string;
+}): Promise<Patient[]> => {
+  const idFilter = patientFilters.find(
+    (filter) => filter.id === "patient-search-by-identifier"
+  );
+  const nameFilter = patientFilters.find(
+    (filter) => filter.id === "patient-search-by-fullname"
+  );
+  const queries: string[] = [];
+  const identifierQuery = format(idFilter?.template ?? "", { identifier });
+  const nameQuery = format(nameFilter?.template ?? "", {
+    given: firstName,
+    family: lastName,
+  });
+  queries.push(identifierQuery);
+  queries.push(nameQuery);
+  console.log(queries);
 
-const areStatusTheSame = (carePlanStatus: string, taskStatus: string) => {
-  return carePlanStatus === mapTaskToCarePlan(taskStatus);
-};
-
-const mapTaskToCarePlan = (task: string) => {
-  switch (task) {
-    case "failed":
-      return "stopped";
-    case "cancelled":
-      return "cancelled";
-    case "ready":
-      return "not-started";
-    case "completed":
-    case "on-hold":
-    case "in-progress":
-    case "entered-in-error":
-      return task;
-    default:
-      return "null";
-  }
+  const res = await fhirServer.get("/Patient?" + queries.join("&"), {});
+  return res.data.entry?.map((entry: any) => createPatient(entry.resource));
 };

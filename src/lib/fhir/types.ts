@@ -2,6 +2,8 @@ export type Patient = {
     id: string,
     identifier: string,
     name: string,
+    firstName: string,
+    lastName: string,
     gender: string,
     birthDate: string,
     active: boolean,

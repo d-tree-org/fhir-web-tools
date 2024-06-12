@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import FilterCard from "./filter-card";
 import { useForm, FormProvider, Control, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Patient } from "./types";
+import { Patient } from "../../../lib/fhir/types";
 import Link from "next/link";
 
 type Props = {
