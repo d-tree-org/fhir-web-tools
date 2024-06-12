@@ -25,6 +25,8 @@ export const pushResourceBundle = async (resources: fhirR4.Resource[]) => {
   } catch (error) {
     if (error instanceof AxiosError) {
       console.log(error.response?.data);
+    } else {
+      console.log(error);
     }
   }
 };

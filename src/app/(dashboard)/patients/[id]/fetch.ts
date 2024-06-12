@@ -1,6 +1,7 @@
 import { fhirServer } from "@/lib/api/axios";
 import { CarePlanData, CarePlanDataActivity } from "./types";
 import { fhirR4 } from "@smile-cdr/fhirts";
+import { mapTaskToCarePlan } from "@/lib/fhir/tasks";
 
 export const fetchCarePlan = async (
   id: string
@@ -122,20 +123,3 @@ const areStatusTheSame = (carePlanStatus: string, taskStatus: string) => {
   return carePlanStatus === mapTaskToCarePlan(taskStatus);
 };
 
-const mapTaskToCarePlan = (task: string) => {
-  switch (task) {
-    case "failed":
-      return "stopped";
-    case "cancelled":
-      return "cancelled";
-    case "ready":
-      return "not-started";
-    case "completed":
-    case "on-hold":
-    case "in-progress":
-    case "entered-in-error":
-      return task;
-    default:
-      return "null";
-  }
-};

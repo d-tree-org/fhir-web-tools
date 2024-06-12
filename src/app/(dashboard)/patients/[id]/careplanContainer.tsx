@@ -35,7 +35,7 @@ export const CarePlanContainer = ({ data, action }: Props) => {
     <>
       <div className="p-2 flex flex-row gap-2">
         <button
-          className="btn btn-primary"
+          className={"btn " + (selectFix ? "btn-error" : "btn-secondary")}
           onClick={() => {
             if (selectFix) {
               setSelectFix(false);
@@ -46,7 +46,7 @@ export const CarePlanContainer = ({ data, action }: Props) => {
             }
           }}
         >
-          Select Tasks to fix
+          {selectFix ? "Cancel" : "Select issues to fix"}
         </button>
         {(items?.length ?? 0) > 0 && (
           <button

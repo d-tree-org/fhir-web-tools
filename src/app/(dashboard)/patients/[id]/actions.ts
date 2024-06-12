@@ -4,6 +4,7 @@ import { pushResourceBundle } from "@/lib/fhir/bundle";
 import { fetchCarePlan } from "./fetch";
 import { CarePlanData, CarePlanDataActivity } from "./types";
 import { fhirR4 } from "@smile-cdr/fhirts";
+import { mapCarePlanToTask } from "@/lib/fhir/tasks";
 
 export const fixTasks = async (formData: FormData) => {
   const resourcesToUpdate: fhirR4.Resource[] = [];
@@ -12,16 +13,27 @@ export const fixTasks = async (formData: FormData) => {
     items: CarePlanDataActivity[];
   };
   const mapCarePlan = new Map<string, CarePlanDataActivity>();
-  data.items.forEach(async (activity) => {
+  for (const activity of data.items) {
     if (!activity.taskExists) {
+      console.log(activity);
+      if (
+        activity.taskReference == undefined ||
+        activity.taskReference == null
+      ) {
+        continue;
+      }
+      activity.taskStatus = mapCarePlanToTask(activity.carePlanActivityStatus);
       const task = creatNewTask(data.careplan, activity);
       resourcesToUpdate.push(task);
+    } else {
+      if (!activity.isTaskAndCarePlanSameStatus && activity.taskReference) {
+        activity.taskStatus = mapCarePlanToTask(
+          activity.carePlanActivityStatus
+        );
+        mapCarePlan.set(activity.taskReference, activity);
+      }
     }
-    if (!activity.isTaskAndCarePlanSameStatus && activity.taskReference) {
-      activity.carePlanActivityStatus = activity.taskStatus;
-      mapCarePlan.set(activity.taskReference, activity);
-    }
-  });
+  }
   const res = await fetchCarePlan(data.careplan.patientId);
   if (res == null) {
     return null;
@@ -56,6 +68,7 @@ const creatNewTask = (
   activity: CarePlanDataActivity
 ): fhirR4.Task => {
   const task = createGenericTask({
+    taskReference: activity.taskReference!,
     patientId: carePlan.patientId,
     taskDescription: activity.task,
     questId: activity.questionnaire,
@@ -71,26 +84,30 @@ const createGenericTask = ({
   questId,
   carePlan,
   taskStatus,
+  taskReference,
 }: {
+  taskReference: string;
   patientId: string;
   taskDescription: string;
   questId: string;
   carePlan: CarePlanData;
-  taskStatus?: string;
+  taskStatus: string;
 }) => {
   const patientReference = new fhirR4.Reference();
   patientReference.reference = `Patient/${patientId}`;
 
   const questRef = new fhirR4.Reference();
-  questRef.reference = `Questionnaire/${questId}`;
+  questRef.reference = `${questId}`;
 
   const period = new fhirR4.Period();
   period.start = new Date();
   period.end = new Date();
 
   const task = new fhirR4.Task();
+  task.id = taskReference;
   task.resourceType = "Task";
-  task.status = (taskStatus as any) ?? fhirR4.Task.StatusEnum.Ready;
+  task.status =
+    taskStatus !== "null" ? (taskStatus as any) : fhirR4.Task.StatusEnum.Ready;
   task.intent = fhirR4.Task.IntentEnum.Plan;
   task.priority = "routine";
   task.description = taskDescription;
@@ -103,11 +120,24 @@ const createGenericTask = ({
   task.reasonReference = questRef;
 
   const meta = new fhirR4.Meta();
-  meta.tag = carePlan.tags;
+  meta.tag = carePlan.tags.filter(
+    (tag) =>
+      tag.system !== "https://d-tree.org/fhir/created-on-tag" &&
+      tag.system !== "https://d-tree.org/fhir/careplan-reference"
+  );
   meta.tag.push({
     system: "https://d-tree.org/fhir/careplan-reference",
     code: "CarePlan/" + carePlan.id,
     display: carePlan.title,
+  });
+  meta.tag.push({
+    system: "https://d-tree.org/fhir/created-on-tag",
+    code: new Date().toLocaleDateString("en-GB"),
+    display: "Created on",
+  });
+  meta.tag.push({
+    system: "https://d-tree.org/fhir/procedure-code",
+    code: questId,
   });
   task.meta = meta;
   return task;
