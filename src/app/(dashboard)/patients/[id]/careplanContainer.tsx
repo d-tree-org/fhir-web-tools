@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CarePlanData, CarePlanDataActivity } from "./types";
 
 type Props = {
@@ -13,6 +13,7 @@ export const CarePlanContainer = ({ data, action }: Props) => {
   const [items, setItems] = useState<CarePlanDataActivity[]>();
   const [selectFix, setSelectFix] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
+  const [hasFixableItems, setHasFixableItems] = useState(false);
 
   const submit = async () => {
     setLoading(true);
@@ -31,23 +32,51 @@ export const CarePlanContainer = ({ data, action }: Props) => {
     setLoading(false);
   };
 
+  useEffect(() => {
+    setHasFixableItems(
+      careplan.activities.some(
+        (e) =>
+          (!e.isTaskAndCarePlanSameStatus || !e.taskExists) &&
+          e.taskType == "normal"
+      )
+    );
+  }, [careplan]);
+
   return (
     <>
       <div className="p-2 flex flex-row gap-2">
-        <button
-          className={"btn " + (selectFix ? "btn-error" : "btn-secondary")}
-          onClick={() => {
-            if (selectFix) {
-              setSelectFix(false);
-              setItems([]);
-            } else {
-              setSelectFix(true);
-              setItems([]);
-            }
-          }}
-        >
-          {selectFix ? "Cancel" : "Select issues to fix"}
-        </button>
+        {hasFixableItems && (
+          <button
+            className={"btn " + (selectFix ? "btn-error" : "btn-secondary")}
+            onClick={() => {
+              if (selectFix) {
+                setSelectFix(false);
+                setItems([]);
+              } else {
+                setSelectFix(true);
+                setItems([]);
+              }
+            }}
+          >
+            {selectFix ? "Cancel" : "Select issues to fix"}
+          </button>
+        )}
+        {selectFix && (
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setItems(
+                careplan.activities.filter(
+                  (e) =>
+                    (!e.isTaskAndCarePlanSameStatus || !e.taskExists) &&
+                    e.taskType == "normal"
+                )
+              );
+            }}
+          >
+            Select all
+          </button>
+        )}
         {(items?.length ?? 0) > 0 && (
           <button
             className="btn btn-primary"
@@ -67,7 +96,6 @@ export const CarePlanContainer = ({ data, action }: Props) => {
         </div>
       )}
       <div className="flex flex-col gap-4">
-        {" "}
         {careplan.activities?.map((activity: CarePlanDataActivity) => {
           return (
             <details key={activity.task} className="collapse bg-base-200">
@@ -75,7 +103,9 @@ export const CarePlanContainer = ({ data, action }: Props) => {
                 <div className="flex flex-row gap-2 items-center p-2">
                   {selectFix &&
                     (activity.taskReference != undefined ||
-                      activity.taskReference != null) && (
+                      activity.taskReference != null) &&
+                    (!activity.isTaskAndCarePlanSameStatus ||
+                      !activity.taskExists) && (
                       <input
                         type="checkbox"
                         checked={
@@ -97,17 +127,25 @@ export const CarePlanContainer = ({ data, action }: Props) => {
                         className="checkbox"
                       />
                     )}
-
                   <p>{activity.task}</p>
                 </div>
                 <div className="flex flex-row gap-2">
-                  {activity.taskExists == false && (
-                    <div className="badge badge-error gap-2">Task Missing</div>
+                  {activity.taskType == "normal" && (
+                    <>
+                      {activity.taskExists == false && (
+                        <div className="badge badge-error gap-2">
+                          Task Missing
+                        </div>
+                      )}
+                      {activity.isTaskAndCarePlanSameStatus == false && (
+                        <div className="badge badge-error gap-2">
+                          Status different
+                        </div>
+                      )}
+                    </>
                   )}
-                  {activity.isTaskAndCarePlanSameStatus == false && (
-                    <div className="badge badge-error gap-2">
-                      Status different
-                    </div>
+                  {activity.taskType == "scheduled" && (
+                    <div className="badge badge-accent">Scheduled Task</div>
                   )}
                 </div>
               </summary>
