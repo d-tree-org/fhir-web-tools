@@ -1,6 +1,6 @@
 "use client";
 
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { MdOutlineSearch as MagnifyingGlassIcon } from "react-icons/md";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 

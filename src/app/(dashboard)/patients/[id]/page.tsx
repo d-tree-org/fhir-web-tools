@@ -1,4 +1,4 @@
-import { CarePlanContainer } from "./careplanContainer";
+import { CarePlanContainer } from "./components/careplanContainer";
 import { fixTasks } from "./actions";
 import { fetchCarePlan } from "./fetch";
 import { CarePlanData } from "./types";
@@ -8,11 +8,18 @@ import { Patient } from "@/lib/fhir/types";
 import { patientFilters } from "@/model/filters";
 import format from "string-template";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import Link from "next/link";
 import { fhirR4 } from "@smile-cdr/fhirts";
-
+import Duplicates from "./components/duplicates";
+import PatientInfo from "./components/patientInfo";
 
 export const maxDuration = 60;
+
+type TabItem = {
+  id: string;
+  title: string;
+  count?: number;
+  show: boolean;
+};
 
 export default async function Page({ params }: { params: { id: string } }) {
   const {
@@ -20,34 +27,31 @@ export default async function Page({ params }: { params: { id: string } }) {
     patient,
     duplicates,
   } = await fetchData(params.id);
-  const tabs = [{ title: "Care Plan", id: "general" }];
-  if (duplicates.length > 0) {
-    tabs.push({
-      title: `Possible duplicates (${duplicates.length + 1})`,
+
+  const tabs: TabItem[] = [
+    { title: "Care Plan", id: "general", show: true },
+    {
+      title: `Possible duplicates`,
       id: "duplicates",
-    });
-  }
+      show: duplicates.length > 0,
+      count: duplicates.length,
+    },
+  ];
+
   return (
     <div className="container">
       <div className="flex flex-col gap-4">
-        <div className="">
-          {patient && (
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-row flex-wrap gap-2 justify-between">
-                <h1 className="text-2xl font-bold">{patient.name}</h1>
-                <div></div>
-              </div>
-              <p className="text-sm text-gray-500">{patient.id}</p>
-            </div>
-          )}
-        </div>
+        <div className="">{patient && <PatientInfo patient={patient} />}</div>
         <TabGroup>
           <TabList className="flex gap-4 tabs tabs-boxed">
-            {tabs.map((tab) => (
-              <Tab key={tab.id} className="tab data-[selected]:tab-active">
-                {tab.title}
-              </Tab>
-            ))}
+            {tabs
+              .filter((e) => e.show)
+              .map((tab) => (
+                <Tab key={tab.id} className="tab data-[selected]:tab-active">
+                  {tab.title}
+                  {tab.count && <span className="badge">{tab.count}</span>}
+                </Tab>
+              ))}
           </TabList>
           <TabPanels className="mt-3">
             <TabPanel key="general" className="rounded-xl bg-white/5 p-3">
@@ -62,29 +66,7 @@ export default async function Page({ params }: { params: { id: string } }) {
             </TabPanel>
             {duplicates.length > 0 && (
               <TabPanel key="duplicates" className="rounded-xl p-3">
-                <div className="flex flex-col gap-4 w-full p-8">
-                  <div className="flex flex-col gap-4 ">
-                    {duplicates.map((patient) => (
-                      <div key={patient.id} className="card  bg-base-200">
-                        <div className="card-body flex flex-col gap-2">
-                          <div className="flex flex-row gap-2">
-                            <h1>{patient.name}</h1>
-                            <p>{patient.id}</p>
-                            <Link
-                              href={`/patients/${patient.id}`}
-                              className="btn btn-secondary"
-                            >
-                              View
-                            </Link>
-                          </div>
-                          <div className="flex flex-row gap-2">
-                            <p>{patient.identifier}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <Duplicates duplicates={duplicates} />
               </TabPanel>
             )}
           </TabPanels>
@@ -120,7 +102,7 @@ const fetchUserData = async (id: string) => {
     lastName: patient.lastName,
     identifier: patient.identifier,
   });
-  return { patient, duplicates: duplicates.filter((e) => e.id !== patient.id) };
+  return { patient, duplicates: duplicates?.filter((e) => e.id !== patient.id) ?? [] };
 };
 
 const fetchPosibleDuplicates = async ({
