@@ -1,7 +1,7 @@
 "use client";
 
+import { CarePlanData, CarePlanDataActivity } from "@/lib/models/types";
 import { useEffect, useState } from "react";
-import { CarePlanData, CarePlanDataActivity } from "./types";
 
 type Props = {
   action: (data: FormData) => Promise<any>;

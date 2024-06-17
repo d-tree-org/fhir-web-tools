@@ -1,7 +1,7 @@
 import { CarePlanContainer } from "./components/careplanContainer";
 import { fixTasks } from "./actions";
 import { fetchCarePlan } from "./fetch";
-import { CarePlanData } from "./types";
+import { CarePlanData } from "../../../../lib/models/types";
 import { fhirServer } from "@/lib/api/axios";
 import { createPatient } from "@/lib/fhir/patient";
 import { Patient } from "@/lib/fhir/types";

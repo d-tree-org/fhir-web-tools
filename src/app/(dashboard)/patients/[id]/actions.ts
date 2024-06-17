@@ -2,7 +2,7 @@
 
 import { pushResourceBundle } from "@/lib/fhir/bundle";
 import { fetchCarePlan } from "./fetch";
-import { CarePlanData, CarePlanDataActivity } from "./types";
+import { CarePlanData, CarePlanDataActivity } from "../../../../lib/models/types";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { mapCarePlanToTask } from "@/lib/fhir/tasks";
 

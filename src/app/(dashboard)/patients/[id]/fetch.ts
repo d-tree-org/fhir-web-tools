@@ -1,5 +1,5 @@
 import { fhirServer } from "@/lib/api/axios";
-import { CarePlanData, CarePlanDataActivity } from "./types";
+import { CarePlanData, CarePlanDataActivity } from "../../../../lib/models/types";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { mapTaskToCarePlan } from "@/lib/fhir/tasks";
 
