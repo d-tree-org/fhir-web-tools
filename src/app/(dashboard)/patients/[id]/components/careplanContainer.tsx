@@ -96,6 +96,11 @@ export const CarePlanContainer = ({ data, action }: Props) => {
         </div>
       )}
       <div className="flex flex-col gap-4">
+        <div>
+          {
+            careplan && (<CarePlanSummary careplan={careplan}/>)
+          }
+        </div>
         {careplan.activities?.map((activity: CarePlanDataActivity) => {
           return (
             <details key={activity.task} className="collapse bg-base-200">
@@ -168,3 +173,32 @@ export const CarePlanContainer = ({ data, action }: Props) => {
     </>
   );
 };
+
+
+const CarePlanSummary = ({ careplan }: { careplan: CarePlanData }) => {
+  return <div>
+    <h6>{careplan.title}</h6>
+    <div>
+      <div>
+        <span>Patient: </span>
+        <span>{careplan.patientId}</span>
+      </div>
+      <div>
+        <span>Requester: </span>
+        <span>{careplan.requester}</span>
+      </div>
+      <div>
+        <span>Author: </span>
+        <span>{careplan.author}</span>
+      </div>
+      <div>
+        <span>Visit Number: </span>
+        <span>{careplan.visitNumber}</span>
+      </div>
+      <div>
+        <span>Tags: </span>
+        <span>{careplan.tags.map(tag => tag.display).join(", ")}</span>
+      </div>
+    </div>
+  </div>
+}

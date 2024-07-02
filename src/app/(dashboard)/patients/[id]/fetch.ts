@@ -1,5 +1,8 @@
 import { fhirServer } from "@/lib/api/axios";
-import { CarePlanData, CarePlanDataActivity } from "../../../../lib/models/types";
+import {
+  CarePlanData,
+  CarePlanDataActivity,
+} from "../../../../lib/models/types";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { mapTaskToCarePlan } from "@/lib/fhir/tasks";
 
@@ -45,6 +48,12 @@ const createDetails = async (
     patientId: patienyId,
     activities: tasks,
     requester: carePlan.author,
+    visitNumber:
+      carePlan.category?.find(
+        (e) =>
+          e?.coding?.[0].code ==
+          "https://d-tree.org/fhir/care-plan-visit-number"
+      )?.coding?.[0].code ?? "NA",
   };
 };
 
@@ -122,4 +131,3 @@ async function fetchTask(taskId: string): Promise<any> {
 const areStatusTheSame = (carePlanStatus: string, taskStatus: string) => {
   return carePlanStatus === mapTaskToCarePlan(taskStatus);
 };
-

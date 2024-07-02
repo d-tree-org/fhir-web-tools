@@ -6,6 +6,7 @@ export type CarePlanData = {
   patientId: string;
   requester: any;
   author: any;
+  visitNumber: string;
   tags: fhirR4.Coding[];
   activities: CarePlanDataActivity[];
 };
