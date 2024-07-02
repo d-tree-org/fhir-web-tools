@@ -51,7 +51,7 @@ const createDetails = async (
     visitNumber:
       carePlan.category?.find(
         (e) =>
-          e?.coding?.[0].code ==
+          e?.coding?.[0].system ==
           "https://d-tree.org/fhir/care-plan-visit-number"
       )?.coding?.[0].code ?? "NA",
   };

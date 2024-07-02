@@ -88,7 +88,6 @@ export const CarePlanContainer = ({ data, action }: Props) => {
           </button>
         )}
       </div>
-      <h6>Tasks</h6>
       {loading && (
         <div className="flex flex-col gap-4 w-full p-8">
           <p>Working...</p>
@@ -96,11 +95,8 @@ export const CarePlanContainer = ({ data, action }: Props) => {
         </div>
       )}
       <div className="flex flex-col gap-4">
-        <div>
-          {
-            careplan && (<CarePlanSummary careplan={careplan}/>)
-          }
-        </div>
+        <div>{careplan && <CarePlanSummary careplan={careplan} />}</div>
+        <h5 className="scroll-m-20 text-4xl font-bold tracking-tight">Tasks</h5>
         {careplan.activities?.map((activity: CarePlanDataActivity) => {
           return (
             <details key={activity.task} className="collapse bg-base-200">
@@ -174,31 +170,45 @@ export const CarePlanContainer = ({ data, action }: Props) => {
   );
 };
 
-
 const CarePlanSummary = ({ careplan }: { careplan: CarePlanData }) => {
-  return <div>
-    <h6>{careplan.title}</h6>
+  return (
     <div>
-      <div>
-        <span>Patient: </span>
-        <span>{careplan.patientId}</span>
-      </div>
-      <div>
-        <span>Requester: </span>
-        <span>{careplan.requester}</span>
-      </div>
-      <div>
-        <span>Author: </span>
-        <span>{careplan.author}</span>
-      </div>
-      <div>
-        <span>Visit Number: </span>
-        <span>{careplan.visitNumber}</span>
-      </div>
-      <div>
-        <span>Tags: </span>
-        <span>{careplan.tags.map(tag => tag.display).join(", ")}</span>
-      </div>
+      <details className="collapse bg-base-200">
+        <summary className="collapse-title text-xl font-medium">
+          View Care Plan Details
+        </summary>
+        <div className="collapse-content">
+          <h6>{careplan.title}</h6>
+          <div>
+            <div>
+              <span>Patient: </span>
+              <span>{careplan.patientId}</span>
+            </div>
+            <div>
+              <span>Requester: </span>
+              <span>{careplan.requester}</span>
+            </div>
+            <div>
+              <span>Author: </span>
+              <span>{careplan.author}</span>
+            </div>
+            <div>
+              <span>Visit Number: </span>
+              <span>{careplan.visitNumber}</span>
+            </div>
+            <div>
+              <h6 className="">Tags: </h6>
+              <div className="flex flex-col p-2">
+                {careplan.tags.map((tag) => (
+                  <span key={tag.code}>
+                    {tag.display} : {tag.code}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
     </div>
-  </div>
-}
+  );
+};

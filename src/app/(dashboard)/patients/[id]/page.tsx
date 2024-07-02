@@ -41,7 +41,9 @@ export default async function Page({ params }: { params: { id: string } }) {
   return (
     <div className="container">
       <div className="flex flex-col gap-4">
-        <div className="">{patient && <PatientInfo patient={patient} />}</div>
+        <div className="">
+          {patient && <PatientInfo patient={patient} carePlan={carePlan} />}
+        </div>
         <TabGroup>
           <TabList className="flex gap-4 tabs tabs-boxed">
             {tabs
@@ -102,7 +104,10 @@ const fetchUserData = async (id: string) => {
     lastName: patient.lastName,
     identifier: patient.identifier,
   });
-  return { patient, duplicates: duplicates?.filter((e) => e.id !== patient.id) ?? [] };
+  return {
+    patient,
+    duplicates: duplicates?.filter((e) => e.id !== patient.id) ?? [],
+  };
 };
 
 const fetchPosibleDuplicates = async ({

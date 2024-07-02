@@ -1,12 +1,14 @@
 import HiddenText from "@/components/hidden.text";
 import { Patient } from "@/lib/fhir/types";
+import { CarePlanData } from "@/lib/models/types";
 import React from "react";
 
 type Props = {
   patient: Patient;
+  carePlan: CarePlanData | null | undefined;
 };
 
-const PatientInfo = ({ patient }: Props) => {
+const PatientInfo = ({ patient, carePlan }: Props) => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-row flex-wrap gap-4 items-center">
@@ -17,7 +19,13 @@ const PatientInfo = ({ patient }: Props) => {
         </div>
       </div>
       <div className="flex flex-row gap-2 flex-wrap mt-2">
-        <span>{patient.id}</span>
+        {carePlan && (
+          <div>
+            {carePlan.title && (
+              <p className="text-lg font-semibold">{carePlan.title}</p>
+            )}
+          </div>
+        )}
         <HiddenText
           label="UUID"
           value={patient.id}
