@@ -42,12 +42,12 @@ const createDetails = async (
   const tasks = await getTasksFromCarePlan(carePlan);
   return {
     id: carePlan.id ?? "",
-    author: carePlan.author,
+    author: carePlan.author?.display,
     tags: carePlan?.meta?.tag ?? [],
     title: carePlan.title,
     patientId: patienyId,
     activities: tasks,
-    requester: carePlan.author,
+    requester: carePlan.author?.display,
     visitNumber:
       carePlan.category?.find(
         (e) =>

@@ -186,11 +186,11 @@ const CarePlanSummary = ({ careplan }: { careplan: CarePlanData }) => {
             </div>
             <div>
               <span>Requester: </span>
-              <span>{careplan.requester}</span>
+              <span>{careplan.requester?.toString()}</span>
             </div>
             <div>
               <span>Author: </span>
-              <span>{careplan.author}</span>
+              <span>{careplan.author?.toString()}</span>
             </div>
             <div>
               <span>Visit Number: </span>
