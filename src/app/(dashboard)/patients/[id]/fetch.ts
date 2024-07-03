@@ -17,6 +17,7 @@ export const fetchCarePlan = async (
       params: {
         subject: id,
         status: "active",
+        _sort: "-_lastUpdated",
       },
     });
 

@@ -11,6 +11,7 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import Duplicates from "./components/duplicates";
 import PatientInfo from "./components/patientInfo";
+import Link from "next/link";
 
 export const maxDuration = 60;
 
@@ -45,7 +46,7 @@ export default async function Page({ params }: { params: { id: string } }) {
           {patient && <PatientInfo patient={patient} carePlan={carePlan} />}
         </div>
         <TabGroup>
-          <TabList className="flex gap-4 tabs tabs-boxed">
+          <TabList className="flex flex-row items-center flex-wrap gap-4 tabs tabs-boxed">
             {tabs
               .filter((e) => e.show)
               .map((tab) => (
@@ -54,6 +55,11 @@ export default async function Page({ params }: { params: { id: string } }) {
                   {tab.count && <span className="badge">{tab.count}</span>}
                 </Tab>
               ))}
+            <div className="flex flex-row justify-end flex-1">
+              <Link href={`${params.id}/visits`} className="btn btn-secondary">
+                Visits
+              </Link>
+            </div>
           </TabList>
           <TabPanels className="mt-3">
             <TabPanel key="general" className="rounded-xl bg-white/5 p-3">
