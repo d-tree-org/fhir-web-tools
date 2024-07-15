@@ -1,6 +1,7 @@
-import { fhirR4 } from "@smile-cdr/fhirts";
+import { fhirR4, BundleUtilities } from "@smile-cdr/fhirts";
 import { fhirServer } from "../api/axios";
 import { AxiosError } from "axios";
+import { IBundle } from "@smile-cdr/fhirts/dist/FHIR-R4/interfaces/IBundle";
 
 export const pushResourceBundle = async (resources: fhirR4.Resource[]) => {
   try {
@@ -29,4 +30,25 @@ export const pushResourceBundle = async (resources: fhirR4.Resource[]) => {
       console.log(error);
     }
   }
+};
+
+export const fetchBundle = async (
+  requests: string[]
+): Promise<fhirR4.Bundle> => {
+  const bundle: IBundle = {
+    resourceType: "Bundle",
+    type: "transaction",
+  };
+  bundle.entry = requests.map((request) => {
+    return {
+      request: {
+        method: "GET",
+        url: request,
+      },
+    };
+  });
+  console.log(JSON.stringify(bundle));
+  
+  const response = await fhirServer.post("/", bundle);
+  return response.data;
 };
