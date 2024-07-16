@@ -4,6 +4,7 @@ import { fetchBundle } from "@/lib/fhir/bundle";
 import { LocationData, SummaryItem } from "@/lib/models/types";
 import { FilterFormData } from "@/model/filters";
 import { fhirR4 } from "@smile-cdr/fhirts";
+import { format } from "date-fns";
 
 export async function fetchRequiredData() {
   const locationQuery = paramGenerator("/Location", {
@@ -39,11 +40,16 @@ export async function fetchData(formData: FormData) {
   });
   const query: Record<string, string> = {
     _summary: "count",
+    questionnaire: "patient-finish-visit",
   };
   baseFilter.forEach((filter) => {
     Object.assign(query, filter);
   });
-  const allVisits = paramGenerator("/CarePlan", query);
+  if (query["date"]) {
+    query["authored"] = format(query["date"], "yyyy-MM-dd");
+    delete query["date"];
+  }
+  const allVisits = paramGenerator("/QuestionnaireResponse", query);
   const bundle = await fetchBundle([allVisits]);
   const summary: string[] = ["Total visits"];
   console.log(JSON.stringify(bundle));
