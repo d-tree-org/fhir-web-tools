@@ -5,6 +5,7 @@ import { LocationData, SummaryItem } from "@/lib/models/types";
 import { FilterFormData } from "@/model/filters";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { format } from "date-fns";
+import { QueryParam } from "./model";
 
 export async function fetchRequiredData() {
   const locationQuery = paramGenerator("/Location", {
@@ -25,7 +26,7 @@ export async function fetchData(formData: FormData) {
     formData.getAll("data")[0] as string
   ) as FilterFormData;
 
-  console.log(JSON.stringify(data));
+  // console.log(JSON.stringify(data));
   const baseFilter = data.filters.map((filter) => {
     const temp: Record<string, string> = {};
     if (filter.template == "_tag_location") {
@@ -38,20 +39,43 @@ export async function fetchData(formData: FormData) {
     }
     return temp;
   });
-  const query: Record<string, string> = {
+
+  const allFinishVisitsQuery = new QueryParam({
     _summary: "count",
     questionnaire: "patient-finish-visit",
-  };
-  baseFilter.forEach((filter) => {
-    Object.assign(query, filter);
   });
-  if (query["date"]) {
-    query["authored"] = format(query["date"], "yyyy-MM-dd");
-    delete query["date"];
+  const allNewlyRegisteredQuery = new QueryParam({
+    _summary: "count",
+  });
+
+  allFinishVisitsQuery.fromArray(baseFilter);
+  allNewlyRegisteredQuery.fromArray(baseFilter);
+
+  if (allFinishVisitsQuery.has("date")) {
+    allFinishVisitsQuery.set(
+      "authored",
+      format(allFinishVisitsQuery.get("date")!, "yyyy-MM-dd")
+    );
+    allFinishVisitsQuery.remove("date");
   }
-  const allVisits = paramGenerator("/QuestionnaireResponse", query);
-  const bundle = await fetchBundle([allVisits]);
-  const summary: string[] = ["Total visits"];
+
+  if (allNewlyRegisteredQuery.has("date")) {
+    allNewlyRegisteredQuery.set(
+      "_tag",
+      `https://d-tree.org/fhir/created-on-tag|${format(
+        allNewlyRegisteredQuery.get("date")!,
+        "dd/MM/yyyy"
+      )}`
+    );
+    allNewlyRegisteredQuery.remove("date");
+  }
+
+  const allVisits = allFinishVisitsQuery.toUrl("/QuestionnaireResponse");
+
+  const allNewlyRegistered = allNewlyRegisteredQuery.toUrl("/Patient");
+
+  const bundle = await fetchBundle([allVisits, allNewlyRegistered]);
+  const summary: string[] = ["Total visits", "Newly registered patients"];
   console.log(JSON.stringify(bundle));
 
   return getResults(bundle, summary);
@@ -90,7 +114,7 @@ const getResults = (
 
 const paramGenerator = (
   resources: string,
-  params: Record<string, string | number>
+  params: Record<string, string | number | string>
 ) => {
   return `${resources}?${Object.keys(params)
     .map((key) => `${key}=${params[key]}`)
