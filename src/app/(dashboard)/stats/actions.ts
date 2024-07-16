@@ -63,13 +63,24 @@ export async function fetchData(formData: FormData) {
     createPatientFilters(["newly-diagnosed-client"], rawDate, baseFilter),
     createPatientFilters(["client-already-on-art"], rawDate, baseFilter),
     createPatientFilters(["exposed-infant"], rawDate, baseFilter),
-    // createPatientFilters(["exposed-infant", "newly-diagnosed-client", "client-already-on-art"], baseFilter),
+    createQuestionnaireResponseFilters(
+      "exposed-infant-milestone-hiv-test",
+      rawDate,
+      baseFilter
+    ),
+    createQuestionnaireResponseFilters(
+      "art-client-viral-load-collection",
+      rawDate,
+      baseFilter
+    ),
   ]);
   const summary: string[] = [
     "Total visits",
     "Newly diagnosed clients (created)",
     "Already on Art (created)",
     "Exposed infant (created)",
+    "Milestone answered",
+    "VL collected answered",
   ];
   console.log(JSON.stringify(bundle));
 
