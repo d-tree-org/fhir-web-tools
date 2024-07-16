@@ -12,18 +12,16 @@ const Content = (props: Props) => {
   const { summaries, date } = data as SummaryResponse;
 
   return (
-    <div>
+    <div className="my-8 flex flex-col gap-4">
       {date && <h3>Results for: {formatDate(date)}</h3>}
-      {summaries.map((summary) => (
-        <div key={summary.name} className="card w-full bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title">
-              <span>{summary.name}</span>
-              <span className="badge">{summary.value}</span>
-            </h2>
+      <div className="stats shadow">
+        {summaries.map((summary) => (
+          <div key={summary.name} className="stat">
+            <div className="stat-title">{summary.name}</div>
+            <div className="stat-value">{summary.value}</div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
