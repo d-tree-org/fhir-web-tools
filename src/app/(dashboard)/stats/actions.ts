@@ -6,6 +6,7 @@ import { FilterFormData } from "@/model/filters";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { format } from "date-fns";
 import { QueryParam } from "./model";
+import { createPatientFilters } from "./filters";
 
 export async function fetchRequiredData() {
   const locationQuery = paramGenerator("/Location", {
@@ -44,12 +45,8 @@ export async function fetchData(formData: FormData) {
     _summary: "count",
     questionnaire: "patient-finish-visit",
   });
-  const allNewlyRegisteredQuery = new QueryParam({
-    _summary: "count",
-  });
 
   allFinishVisitsQuery.fromArray(baseFilter);
-  allNewlyRegisteredQuery.fromArray(baseFilter);
 
   if (allFinishVisitsQuery.has("date")) {
     allFinishVisitsQuery.set(
@@ -59,23 +56,17 @@ export async function fetchData(formData: FormData) {
     allFinishVisitsQuery.remove("date");
   }
 
-  if (allNewlyRegisteredQuery.has("date")) {
-    allNewlyRegisteredQuery.set(
-      "_tag",
-      `https://d-tree.org/fhir/created-on-tag|${format(
-        allNewlyRegisteredQuery.get("date")!,
-        "dd/MM/yyyy"
-      )}`
-    );
-    allNewlyRegisteredQuery.remove("date");
-  }
-
   const allVisits = allFinishVisitsQuery.toUrl("/QuestionnaireResponse");
 
-  const allNewlyRegistered = allNewlyRegisteredQuery.toUrl("/Patient");
 
-  const bundle = await fetchBundle([allVisits, allNewlyRegistered]);
-  const summary: string[] = ["Total visits", "Newly registered patients"];
+  const bundle = await fetchBundle([
+    allVisits,
+    createPatientFilters(["newly-diagnosed-client"], baseFilter),
+    createPatientFilters(["client-already-on-art"], baseFilter),
+    createPatientFilters(["exposed-infant"], baseFilter),
+    // createPatientFilters(["exposed-infant", "newly-diagnosed-client", "client-already-on-art"], baseFilter),
+  ]);
+  const summary: string[] = ["Total visits", "Newly diagnosed clients",  "Already on Art", "Exposed infant"];
   console.log(JSON.stringify(bundle));
 
   return getResults(bundle, summary);
