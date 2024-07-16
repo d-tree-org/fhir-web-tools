@@ -21,3 +21,13 @@ export type CarePlanDataActivity = {
   taskExists: boolean;
   taskType: "normal" | "scheduled";
 };
+
+export type LocationData = {
+  id: string;
+  name: string;
+}
+
+export type SummaryItem = {
+  name: string;
+  value: number
+}

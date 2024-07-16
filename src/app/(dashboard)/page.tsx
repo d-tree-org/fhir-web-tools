@@ -10,6 +10,10 @@ const actions = [
     name: "Facilities",
     link: "/facilities",
   },
+  {
+    name: "Stats",
+    link: "/stats",
+  },
 ];
 
 export default async function Page() {
@@ -40,3 +44,4 @@ export default async function Page() {
     </main>
   );
 }
+

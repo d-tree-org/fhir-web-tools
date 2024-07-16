@@ -1,5 +1,7 @@
 import { fetchData } from "./actions";
-import Toolbar from "./toolbar";
+import FilterToolbar from "../../../components/filters/toolbar";
+import { patientFilters } from "@/model/filters";
+import Content from "./content";
 
 export default async function Page({
   searchParams,
@@ -8,11 +10,13 @@ export default async function Page({
 }) {
   return (
     <main className="container mt-6">
-      <pre>{searchParams.q}</pre>
-      {/* <Search />
-       */}
-      <Toolbar action={fetchData}/>
+      <FilterToolbar
+        action={fetchData}
+        filters={patientFilters}
+        defaultItem={[]}
+      >
+        <Content />
+      </FilterToolbar>
     </main>
   );
 }
-

@@ -2,6 +2,7 @@ export interface Filter {
   id: string;
   name: string;
   template: string;
+  isObject?: boolean;
   params: FilterParams[];
 }
 
@@ -17,6 +18,7 @@ export interface FilterParams {
   name: string;
   type: FilterParamType;
   title: any;
+  prefillKey?: string;
 }
 
 export const patientFilters: Filter[] = [
@@ -70,6 +72,36 @@ export const patientFilters: Filter[] = [
         name: "identifier",
         title: "Enter ART/HCC Number",
         type: FilterParamType.string,
+      },
+    ],
+  },
+];
+
+export const statsFilters: Filter[] = [
+  {
+    id: "filter-by-location",
+    name: "Search by Location",
+    template: "_tag_location",
+    isObject: true,
+    params: [
+      {
+        name: "location",
+        title: "Enter facility",
+        type: FilterParamType.select,
+        prefillKey: "locations",
+      },
+    ],
+  },
+  {
+    id: "filter-by-date",
+    name: "Search by Date",
+    template: "date",
+    isObject: true,
+    params: [
+      {
+        name: "date",
+        title: "Enter date",
+        type: FilterParamType.date,
       },
     ],
   },
