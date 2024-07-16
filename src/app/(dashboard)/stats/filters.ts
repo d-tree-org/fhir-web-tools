@@ -23,7 +23,7 @@ export const createQuestionnaireResponseFilters = (
 
   query.remove("date");
   if (date) {
-    query.set(
+    query.add(
       "_tag",
       `https://d-tree.org/fhir/created-on-tag|${format(date, "dd/MM/yyyy")}`
     );
@@ -44,7 +44,7 @@ export const createPatientFilters = (
 
   query.remove("date");
   if (date) {
-    query.set(
+    query.add(
       "_tag",
       `https://d-tree.org/fhir/created-on-tag|${format(date, "dd/MM/yyyy")}`
     );

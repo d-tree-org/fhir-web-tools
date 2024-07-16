@@ -4,8 +4,7 @@ import { fetchBundle } from "@/lib/fhir/bundle";
 import { LocationData, SummaryItem } from "@/lib/models/types";
 import { FilterFormData } from "@/model/filters";
 import { fhirR4 } from "@smile-cdr/fhirts";
-import { format } from "date-fns";
-import { QueryParam, fixDate } from "./model";
+import { fixDate } from "./model";
 import {
   createPatientFilters,
   createQuestionnaireResponseFilters,
@@ -34,7 +33,9 @@ export async function fetchData(formData: FormData) {
   let rawDate: string | null = null;
   const baseFilter = data.filters.map((filter) => {
     const temp: Record<string, string> = {};
+    
     if (filter.template == "_tag_location") {
+      console.log(filter);
       const template = `http://smartregister.org/fhir/location-tag|${
         filter.params[0].value ?? ""
       }`;
@@ -53,6 +54,7 @@ export async function fetchData(formData: FormData) {
   if (rawDate) {
     rawDate = fixDate(rawDate);
   }
+  
 
   const bundle = await fetchBundle([
     createQuestionnaireResponseFilters(

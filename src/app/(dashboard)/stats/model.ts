@@ -13,8 +13,10 @@ export class QueryParam {
   }
 
   add(key: string, value: any) {
+    console.log(key,this.queries.has(key) );
+    
     if (this.queries.has(key)) {
-      this.queries.set(`${key}[${randomInt(100)}]`, value);
+      this.queries.set(`${key}[${Math.random()}]`, value);
     } else {
       this.queries.set(key, value);
     }
@@ -46,9 +48,13 @@ export class QueryParam {
     for (const key in values) {
       this.from(values[key]);
     }
+    console.log(values);
+    console.log(this.queries);
+    
   }
 
   toUrl( resources: string,) {
+    console.log(this.queries);
     const query = Array.from(this.queries)
       .map(([key, value]) => {
         if (key.includes("[")) {
