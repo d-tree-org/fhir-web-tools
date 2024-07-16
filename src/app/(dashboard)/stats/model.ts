@@ -1,10 +1,7 @@
-import { randomInt } from "crypto";
-import { addDays } from "date-fns";
-
-export const fixDate = (date: string) => {
+export const fixDate = (date: string | string[]) => {
   return date;
   // return addDays(date, 1).toISOString();
-}
+};
 
 export class QueryParam {
   queries: Map<string, string> = new Map();
@@ -13,8 +10,6 @@ export class QueryParam {
   }
 
   add(key: string, value: any) {
-    console.log(key,this.queries.has(key) );
-    
     if (this.queries.has(key)) {
       this.queries.set(`${key}[${Math.random()}]`, value);
     } else {
@@ -48,13 +43,9 @@ export class QueryParam {
     for (const key in values) {
       this.from(values[key]);
     }
-    console.log(values);
-    console.log(this.queries);
-    
   }
 
-  toUrl( resources: string,) {
-    console.log(this.queries);
+  toUrl(resources: string) {
     const query = Array.from(this.queries)
       .map(([key, value]) => {
         if (key.includes("[")) {
@@ -63,6 +54,6 @@ export class QueryParam {
         return `${key}=${value}`;
       })
       .join("&");
-      return `${resources}?${query}`;
+    return `${resources}?${query}`;
   }
 }

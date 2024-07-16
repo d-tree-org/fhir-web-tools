@@ -9,6 +9,7 @@ import {
   createPatientFilters,
   createQuestionnaireResponseFilters,
 } from "./filters";
+import { eachDayOfInterval } from "@/lib/utils";
 
 export async function fetchRequiredData() {
   const locationQuery = paramGenerator("/Location", {
@@ -30,10 +31,10 @@ export async function fetchData(formData: FormData) {
   ) as FilterFormData;
 
   console.log(JSON.stringify(data));
-  let rawDate: string | null = null;
+  let rawDate: string | string[] | null = null;
   const baseFilter = data.filters.map((filter) => {
     const temp: Record<string, string> = {};
-    
+
     if (filter.template == "_tag_location") {
       console.log(filter);
       const template = `http://smartregister.org/fhir/location-tag|${
@@ -47,6 +48,29 @@ export async function fetchData(formData: FormData) {
       rawDate =
         filter.params.find((e) => e.name == "date")?.value?.split("T")[0] ??
         null;
+    } else if (filter.template == "dateRange") {
+      const value = filter.params[0].value;
+      if (value) {
+        const { from, to } = value as any;
+        console.log(from, to);
+
+        if (from && to) {
+          const start = new Date(from.split("T")[0]);
+          const end = new Date(to.split("T")[0]);
+          console.log({ start, end });
+
+          rawDate = eachDayOfInterval({
+            start,
+            end,
+          }).map((e) => {
+            console.log(e);
+
+            return e.toISOString().split("T")[0];
+          });
+        } else if (from) {
+          rawDate = [from.split("T")[0]];
+        }
+      }
     }
     return temp;
   });
@@ -54,7 +78,6 @@ export async function fetchData(formData: FormData) {
   if (rawDate) {
     rawDate = fixDate(rawDate);
   }
-  
 
   const bundle = await fetchBundle([
     createQuestionnaireResponseFilters(

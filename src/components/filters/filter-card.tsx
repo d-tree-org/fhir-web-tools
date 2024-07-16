@@ -158,7 +158,14 @@ const GetInput = ({
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => {
-                    field.onChange(date);
+                    if (date) {
+                      field.onChange({
+                        from: date.from ? formatISO(date.from) : undefined,
+                        to: date.to ? formatISO(date.to) : undefined,
+                      });
+                    } else {
+                      field.onChange(null);
+                    }
                   }}
                   // disabled={(date) =>
                   //   date > new Date() || date < new Date("1900-01-01")

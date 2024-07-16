@@ -109,7 +109,7 @@ export const statsFilters: Filter[] = [
   {
     id: "filter-by-date-rage",
     name: "Search by date range",
-    template: "date",
+    template: "dateRange",
     isObject: true,
     params: [
       {

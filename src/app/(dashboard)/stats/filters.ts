@@ -8,7 +8,7 @@ type PatientType =
 
 export const createQuestionnaireResponseFilters = (
   questionnaire: string,
-  date: string | null,
+  date: string | string[] | null,
   baseFilter: Record<string, string>[],
   hasCount = true
 ) => {
@@ -22,19 +22,33 @@ export const createQuestionnaireResponseFilters = (
   query.fromArray(baseFilter);
 
   query.remove("date");
+  query.remove("dateRange");
+
   if (date) {
-    query.add(
-      "_tag",
-      `https://d-tree.org/fhir/created-on-tag|${format(date, "dd/MM/yyyy")}`
-    );
+    if (typeof date === "string") {
+      date = [date];
+    } else {
+      query.add(
+        "_tag",
+        date
+          .map(
+            (d) =>
+              `https://d-tree.org/fhir/created-on-tag|${format(
+                d,
+                "dd/MM/yyyy"
+              )}`
+          )
+          .join(",")
+      );
+      date.forEach((d) => {});
+    }
   }
   return query.toUrl("/QuestionnaireResponse");
 };
 
-
 export const createPatientFilters = (
   types: PatientType[] | undefined = undefined,
-  date: string | null,
+  date: string | string[] | null,
   baseFilter: Record<string, string>[]
 ) => {
   const query = new QueryParam({
@@ -43,11 +57,25 @@ export const createPatientFilters = (
   query.fromArray(baseFilter);
 
   query.remove("date");
+  query.remove("dateRange");
   if (date) {
-    query.add(
-      "_tag",
-      `https://d-tree.org/fhir/created-on-tag|${format(date, "dd/MM/yyyy")}`
-    );
+    if (typeof date === "string") {
+      date = [date];
+    } else {
+      query.add(
+        "_tag",
+        date
+          .map(
+            (d) =>
+              `https://d-tree.org/fhir/created-on-tag|${format(
+                d,
+                "dd/MM/yyyy"
+              )}`
+          )
+          .join(",")
+      );
+      date.forEach((d) => {});
+    }
   }
   if (types) {
     query.add(

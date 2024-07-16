@@ -29,7 +29,7 @@ export type LocationData = {
 
 export type SummaryResponse = {
   summaries: SummaryItem[],
-  date: string | null
+  date: string | string[] | null
 }
 
 export type SummaryItem = {
