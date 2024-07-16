@@ -13,7 +13,10 @@ const Page = async (props: Props) => {
       <FilterToolbar
         action={fetchData}
         filters={statsFilters}
-        defaultItem={[]}
+        defaultItem={{
+          date: null,
+          summaries: [],
+        }}
         prefillData={data}
       >
         <Content />

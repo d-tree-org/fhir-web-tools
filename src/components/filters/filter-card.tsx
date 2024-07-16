@@ -28,7 +28,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, formatISO } from "date-fns";
 
 const GetInput = ({
   type,
@@ -107,7 +107,13 @@ const GetInput = ({
                 <Calendar
                   mode="single"
                   selected={field.value}
-                  onSelect={field.onChange}
+                  onSelect={(date) => {
+                    if (date) {
+                      field.onChange(formatISO(date));
+                    } else {
+                      field.onChange(null);
+                    }
+                  }}
                   // disabled={(date) =>
                   //   date > new Date() || date < new Date("1900-01-01")
                   // }

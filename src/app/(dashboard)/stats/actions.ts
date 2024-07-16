@@ -5,7 +5,7 @@ import { LocationData, SummaryItem } from "@/lib/models/types";
 import { FilterFormData } from "@/model/filters";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { format } from "date-fns";
-import { QueryParam } from "./model";
+import { QueryParam, fixDate } from "./model";
 import { createPatientFilters } from "./filters";
 
 export async function fetchRequiredData() {
@@ -28,6 +28,7 @@ export async function fetchData(formData: FormData) {
   ) as FilterFormData;
 
   console.log(JSON.stringify(data));
+  let rawDate: string | null = null;
   const baseFilter = data.filters.map((filter) => {
     const temp: Record<string, string> = {};
     if (filter.template == "_tag_location") {
@@ -38,8 +39,17 @@ export async function fetchData(formData: FormData) {
     } else {
       temp[filter.template] = filter.params[0].value ?? "";
     }
+    if (filter.params.find((e) => e.name == "date")) {
+      rawDate =
+        filter.params.find((e) => e.name == "date")?.value?.split("T")[0] ??
+        null;
+    }
     return temp;
   });
+
+  if (rawDate) {
+    rawDate = fixDate(rawDate);
+  }
 
   const allFinishVisitsQuery = new QueryParam({
     _summary: "count",
@@ -47,29 +57,30 @@ export async function fetchData(formData: FormData) {
   });
 
   allFinishVisitsQuery.fromArray(baseFilter);
+  allFinishVisitsQuery.remove("date");
 
-  if (allFinishVisitsQuery.has("date")) {
-    allFinishVisitsQuery.set(
-      "authored",
-      format(allFinishVisitsQuery.get("date")!, "yyyy-MM-dd")
-    );
-    allFinishVisitsQuery.remove("date");
+  if (rawDate) {
+    allFinishVisitsQuery.set("authored", format(rawDate, "yyyy-MM-dd"));
   }
 
   const allVisits = allFinishVisitsQuery.toUrl("/QuestionnaireResponse");
 
-
   const bundle = await fetchBundle([
     allVisits,
-    createPatientFilters(["newly-diagnosed-client"], baseFilter),
-    createPatientFilters(["client-already-on-art"], baseFilter),
-    createPatientFilters(["exposed-infant"], baseFilter),
+    createPatientFilters(["newly-diagnosed-client"], rawDate, baseFilter),
+    createPatientFilters(["client-already-on-art"], rawDate, baseFilter),
+    createPatientFilters(["exposed-infant"], rawDate, baseFilter),
     // createPatientFilters(["exposed-infant", "newly-diagnosed-client", "client-already-on-art"], baseFilter),
   ]);
-  const summary: string[] = ["Total visits", "Newly diagnosed clients",  "Already on Art", "Exposed infant"];
+  const summary: string[] = [
+    "Total visits",
+    "Newly diagnosed clients",
+    "Already on Art",
+    "Exposed infant",
+  ];
   console.log(JSON.stringify(bundle));
 
-  return getResults(bundle, summary);
+  return { summaries: getResults(bundle, summary), date: rawDate };
 }
 
 const getLocationData = (bundle: fhirR4.Bundle | undefined): LocationData[] => {

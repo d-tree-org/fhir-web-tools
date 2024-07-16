@@ -1,4 +1,10 @@
 import { randomInt } from "crypto";
+import { addDays } from "date-fns";
+
+export const fixDate = (date: string) => {
+  return date;
+  // return addDays(date, 1).toISOString();
+}
 
 export class QueryParam {
   queries: Map<string, string> = new Map();

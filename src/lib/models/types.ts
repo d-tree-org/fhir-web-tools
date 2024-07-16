@@ -27,6 +27,11 @@ export type LocationData = {
   name: string;
 }
 
+export type SummaryResponse = {
+  summaries: SummaryItem[],
+  date: string | null
+}
+
 export type SummaryItem = {
   name: string;
   value: number
