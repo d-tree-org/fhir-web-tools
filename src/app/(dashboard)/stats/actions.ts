@@ -41,10 +41,7 @@ export async function fetchData(formData: FormData) {
         filter.params[0].value ?? ""
       }`;
       temp["_tag"] = template;
-    } else {
-      temp[filter.template] = filter.params[0].value ?? "";
-    }
-    if (filter.params.find((e) => e.name == "date")) {
+    } else if (filter.template == "date") {
       rawDate =
         filter.params.find((e) => e.name == "date")?.value?.split("T")[0] ??
         null;
@@ -71,7 +68,10 @@ export async function fetchData(formData: FormData) {
           rawDate = [from.split("T")[0]];
         }
       }
+    } else {
+      temp[filter.template] = filter.params[0].value ?? "";
     }
+
     return temp;
   });
 

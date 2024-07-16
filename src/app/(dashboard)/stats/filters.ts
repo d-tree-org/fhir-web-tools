@@ -27,21 +27,16 @@ export const createQuestionnaireResponseFilters = (
   if (date) {
     if (typeof date === "string") {
       date = [date];
-    } else {
-      query.add(
-        "_tag",
-        date
-          .map(
-            (d) =>
-              `https://d-tree.org/fhir/created-on-tag|${format(
-                d,
-                "dd/MM/yyyy"
-              )}`
-          )
-          .join(",")
-      );
-      date.forEach((d) => {});
     }
+    query.add(
+      "_tag",
+      date
+        .map(
+          (d) =>
+            `https://d-tree.org/fhir/created-on-tag|${format(d, "dd/MM/yyyy")}`
+        )
+        .join(",")
+    );
   }
   return query.toUrl("/QuestionnaireResponse");
 };
@@ -61,21 +56,16 @@ export const createPatientFilters = (
   if (date) {
     if (typeof date === "string") {
       date = [date];
-    } else {
-      query.add(
-        "_tag",
-        date
-          .map(
-            (d) =>
-              `https://d-tree.org/fhir/created-on-tag|${format(
-                d,
-                "dd/MM/yyyy"
-              )}`
-          )
-          .join(",")
-      );
-      date.forEach((d) => {});
     }
+    query.add(
+      "_tag",
+      date
+        .map(
+          (d) =>
+            `https://d-tree.org/fhir/created-on-tag|${format(d, "dd/MM/yyyy")}`
+        )
+        .join(",")
+    );
   }
   if (types) {
     query.add(
