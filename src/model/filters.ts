@@ -9,6 +9,7 @@ export interface Filter {
 export enum FilterParamType {
   string = "string",
   date = "date",
+  dateRange = "dateRange",
   number = "number",
   boolean = "boolean",
   select = "select",
@@ -102,6 +103,19 @@ export const statsFilters: Filter[] = [
         name: "date",
         title: "Enter date",
         type: FilterParamType.date,
+      },
+    ],
+  },
+  {
+    id: "filter-by-date-rage",
+    name: "Search by date range",
+    template: "date",
+    isObject: true,
+    params: [
+      {
+        name: "dateRange",
+        title: "Enter date",
+        type: FilterParamType.dateRange,
       },
     ],
   },

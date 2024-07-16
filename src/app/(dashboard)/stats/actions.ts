@@ -6,7 +6,10 @@ import { FilterFormData } from "@/model/filters";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { format } from "date-fns";
 import { QueryParam, fixDate } from "./model";
-import { createPatientFilters } from "./filters";
+import {
+  createPatientFilters,
+  createQuestionnaireResponseFilters,
+} from "./filters";
 
 export async function fetchRequiredData() {
   const locationQuery = paramGenerator("/Location", {
@@ -51,22 +54,12 @@ export async function fetchData(formData: FormData) {
     rawDate = fixDate(rawDate);
   }
 
-  const allFinishVisitsQuery = new QueryParam({
-    _summary: "count",
-    questionnaire: "patient-finish-visit",
-  });
-
-  allFinishVisitsQuery.fromArray(baseFilter);
-  allFinishVisitsQuery.remove("date");
-
-  if (rawDate) {
-    allFinishVisitsQuery.set("authored", format(rawDate, "yyyy-MM-dd"));
-  }
-
-  const allVisits = allFinishVisitsQuery.toUrl("/QuestionnaireResponse");
-
   const bundle = await fetchBundle([
-    allVisits,
+    createQuestionnaireResponseFilters(
+      "patient-finish-visit",
+      rawDate,
+      baseFilter
+    ),
     createPatientFilters(["newly-diagnosed-client"], rawDate, baseFilter),
     createPatientFilters(["client-already-on-art"], rawDate, baseFilter),
     createPatientFilters(["exposed-infant"], rawDate, baseFilter),
@@ -74,9 +67,9 @@ export async function fetchData(formData: FormData) {
   ]);
   const summary: string[] = [
     "Total visits",
-    "Newly diagnosed clients",
-    "Already on Art",
-    "Exposed infant",
+    "Newly diagnosed clients (created)",
+    "Already on Art (created)",
+    "Exposed infant (created)",
   ];
   console.log(JSON.stringify(bundle));
 

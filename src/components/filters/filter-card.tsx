@@ -28,7 +28,8 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { format, formatISO } from "date-fns";
+import { eachDayOfInterval, format, formatISO } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 const GetInput = ({
   type,
@@ -126,6 +127,51 @@ const GetInput = ({
         )}
       />
     );
+  } else if (type === FilterParamType.dateRange) {
+    return (
+      <FormField
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    {field.value ? (
+                      formatRandge(field.value)
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={field.value}
+                  onSelect={(date) => {
+                    field.onChange(date);
+                  }}
+                  // disabled={(date) =>
+                  //   date > new Date() || date < new Date("1900-01-01")
+                  // }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
   }
 
   return <div>Input</div>;
@@ -175,6 +221,16 @@ const FilterCard = ({
       </CardContent>
     </Card>
   );
+};
+
+const formatRandge = (value: DateRange | undefined) => {
+  if (value) {
+    return `${value.from ? format(value.from, "PPP") : "Pick a date"} - ${
+      value.to ? format(value.to, "PPP") : "Pick a date"
+    }`;
+  }
+
+  return "Pick a date";
 };
 
 export default FilterCard;
