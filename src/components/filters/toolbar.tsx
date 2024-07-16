@@ -14,6 +14,7 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { CaretSortIcon } from "@radix-ui/react-icons";
+import { cn } from "@/lib/utils";
 
 type Props<T> = {
   action: (data: FormData) => Promise<any>;
@@ -60,21 +61,21 @@ const FilterToolbarContainer = <T extends unknown>({
   return (
     <div>
       <FormProvider {...methods}>
-        <Collapsible
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          className="w-full space-y-2"
-        >
+        <div className={cn("w-full space-y-2 collapse", isOpen ? "collapse-open" : "collapse-close")}>
           <div className="flex items-center justify-between space-x-4 px-4">
             <h4 className="text-sm font-semibold">Search filters</h4>
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" size="sm">
-                <CaretSortIcon className="h-4 w-4" />
-                <span className="sr-only">Toggle</span>
-              </Button>
-            </CollapsibleTrigger>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setIsOpen(!isOpen);
+              }}
+            >
+              <CaretSortIcon className="h-4 w-4" />
+              <span className="sr-only">Toggle</span>
+            </Button>
           </div>
-          <CollapsibleContent>
+          <div className="collapse-content">
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <FormContainer
                 control={methods.control}
@@ -82,8 +83,8 @@ const FilterToolbarContainer = <T extends unknown>({
                 prefillData={prefillData}
               />
             </form>
-          </CollapsibleContent>
-        </Collapsible>
+          </div>
+        </div>
       </FormProvider>
       <div className="flex flex-col gap-2 my-2">
         {loading && (

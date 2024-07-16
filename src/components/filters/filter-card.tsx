@@ -1,21 +1,20 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Check, ChevronsUpDown } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
@@ -28,7 +27,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { eachDayOfInterval, format, formatISO } from "date-fns";
+import { format, formatISO } from "date-fns";
 import { DateRange } from "react-day-picker";
 
 const GetInput = ({
@@ -41,7 +40,6 @@ const GetInput = ({
   prefileValue?: any;
 }) => {
   const { control } = useFormContext();
-  console.log(type);
 
   if (type === FilterParamType.string) {
     return (
@@ -57,24 +55,59 @@ const GetInput = ({
         control={control}
         name={name}
         render={({ field }) => (
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Select</SelectLabel>
-                {prefileValue != undefined &&
-                  prefileValue.map((value: any) => {
-                    return (
-                      <SelectItem key={value.id} value={value.id}>
-                        {value.name}
-                      </SelectItem>
-                    );
-                  })}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <FormItem className="flex flex-col">
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "w-full justify-between",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    {field.value
+                      ? prefileValue.find(
+                          (value: any) => value.id === field.value
+                        )?.name
+                      : "Select"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search..." />
+                  <CommandList>
+                    <CommandEmpty>No value found.</CommandEmpty>
+                    <CommandGroup>
+                      {prefileValue.map((value: any) => (
+                        <CommandItem
+                          value={value.name}
+                          key={value.id}
+                          onSelect={() => {
+                            field.onChange(value.id);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              value.id === field.value
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {value.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <FormMessage />
+          </FormItem>
         )}
       />
     );
@@ -239,5 +272,9 @@ const formatRandge = (value: DateRange | undefined) => {
 
   return "Pick a date";
 };
+
+const SiteSelect = () => {
+  
+}
 
 export default FilterCard;

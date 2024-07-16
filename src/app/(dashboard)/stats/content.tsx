@@ -14,9 +14,9 @@ const Content = (props: Props) => {
   return (
     <div className="my-8 flex flex-col gap-4">
       {date && <h3>Results for: {formatDate(date)}</h3>}
-      <div className="stats shadow">
+      <div className="stats flex flex-row flex-wrap shadow">
         {summaries.map((summary) => (
-          <div key={summary.name} className="stat">
+          <div key={summary.name} className="stat flex flex-col w-1/2">
             <div className="stat-title">{summary.name}</div>
             <div className="stat-value">{summary.value}</div>
           </div>
