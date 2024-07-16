@@ -27,7 +27,7 @@ export async function fetchData(formData: FormData) {
     formData.getAll("data")[0] as string
   ) as FilterFormData;
 
-  // console.log(JSON.stringify(data));
+  console.log(JSON.stringify(data));
   const baseFilter = data.filters.map((filter) => {
     const temp: Record<string, string> = {};
     if (filter.template == "_tag_location") {
