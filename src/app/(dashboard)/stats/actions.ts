@@ -99,14 +99,20 @@ export async function fetchData(formData: FormData) {
       baseFilter,
       false
     ),
+    createPatientFilters(["newly-diagnosed-client"], null, baseFilter, true),
+    createPatientFilters(["client-already-on-art"], null, baseFilter, true),
+    createPatientFilters(["exposed-infant"], null, baseFilter, true),
   ]);
   const summary: string[] = [
     "Total visits",
-    "Newly diagnosed clients (created)",
-    "Already on Art (created)",
-    "Exposed infant (created)",
+    "Newly diagnosed clients (new)",
+    "Already on Art (new)",
+    "Exposed infant (new)",
     "Milestone answered",
     "VL collected answered",
+    "Newly diagnosed clients (all)",
+    "Already on Art (all)",
+    "Exposed infant (all)",
   ];
 
   return {

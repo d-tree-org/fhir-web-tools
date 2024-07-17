@@ -11,7 +11,7 @@ export const createQuestionnaireResponseFilters = (
   questionnaire: string,
   date: string | string[] | null,
   baseFilter: Record<string, string>[],
-  hasCount = true,
+  hasCount = true
 ) => {
   const query = new QueryParam({
     questionnaire: questionnaire,
@@ -45,13 +45,16 @@ export const createQuestionnaireResponseFilters = (
 export const createPatientFilters = (
   types: PatientType[] | undefined = undefined,
   date: string | string[] | null,
-  baseFilter: Record<string, string>[]
+  baseFilter: Record<string, string>[],
+  onlyActive = false
 ) => {
   const query = new QueryParam({
     _summary: "count",
   });
   query.fromArray(baseFilter);
-
+  if (onlyActive) {
+    query.add("active", true);
+  }
   query.remove("date");
   query.remove("dateRange");
   if (date) {
