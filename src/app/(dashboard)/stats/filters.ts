@@ -11,7 +11,8 @@ export const createQuestionnaireResponseFilters = (
   questionnaire: string,
   date: string | string[] | null,
   baseFilter: Record<string, string>[],
-  hasCount = true
+  hasCount = true,
+  extras: Record<string, string>[] = []
 ) => {
   const query = new QueryParam({
     questionnaire: questionnaire,
@@ -39,6 +40,9 @@ export const createQuestionnaireResponseFilters = (
         .join(",")
     );
   }
+
+  query.fromArray(extras);
+
   return query.toUrl("/QuestionnaireResponse");
 };
 

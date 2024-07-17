@@ -102,6 +102,42 @@ export async function fetchData(formData: FormData) {
     createPatientFilters(["newly-diagnosed-client"], null, baseFilter, true),
     createPatientFilters(["client-already-on-art"], null, baseFilter, true),
     createPatientFilters(["exposed-infant"], null, baseFilter, true),
+    createQuestionnaireResponseFilters(
+      "patient-finish-visit",
+      rawDate,
+      baseFilter,
+      true,
+      [
+        {
+          "subject:Patient._tag":
+            "https://d-tree.org/fhir/patient-meta-tag|newly-diagnosed-client",
+        },
+      ]
+    ),
+    createQuestionnaireResponseFilters(
+      "patient-finish-visit",
+      rawDate,
+      baseFilter,
+      true,
+      [
+        {
+          "subject:Patient._tag":
+            "https://d-tree.org/fhir/patient-meta-tag|client-already-on-art",
+        },
+      ]
+    ),
+    createQuestionnaireResponseFilters(
+      "patient-finish-visit",
+      rawDate,
+      baseFilter,
+      true,
+      [
+        {
+          "subject:Patient._tag":
+            "https://d-tree.org/fhir/patient-meta-tag|exposed-infant",
+        },
+      ]
+    ),
   ]);
   const summary: string[] = [
     "Total visits",
@@ -113,6 +149,9 @@ export async function fetchData(formData: FormData) {
     "Newly diagnosed clients (all)",
     "Already on Art (all)",
     "Exposed infant (all)",
+    "Newly diagnosed clients (visits)",
+    "Already on Art (visits)",
+    "Exposed infant (visits)",
   ];
 
   return {
