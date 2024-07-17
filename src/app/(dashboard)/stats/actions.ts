@@ -36,7 +36,6 @@ export async function fetchData(formData: FormData) {
     const temp: Record<string, string> = {};
 
     if (filter.template == "_tag_location") {
-      console.log(filter);
       const template = `http://smartregister.org/fhir/location-tag|${
         filter.params[0].value ?? ""
       }`;
@@ -91,12 +90,14 @@ export async function fetchData(formData: FormData) {
     createQuestionnaireResponseFilters(
       "exposed-infant-milestone-hiv-test",
       rawDate,
-      baseFilter
+      baseFilter,
+      false
     ),
     createQuestionnaireResponseFilters(
       "art-client-viral-load-collection",
       rawDate,
-      baseFilter
+      baseFilter,
+      false
     ),
   ]);
   const summary: string[] = [
@@ -107,9 +108,32 @@ export async function fetchData(formData: FormData) {
     "Milestone answered",
     "VL collected answered",
   ];
-  console.log(JSON.stringify(bundle));
 
-  return { summaries: getResults(bundle, summary), date: rawDate };
+  return {
+    summaries: getResults(bundle, summary, [
+      {
+        index: 4,
+        filter: (resource) => {
+          return (
+            resource?.item?.[0]?.item?.find(
+              (e) => e.linkId == "able-to-conduct-test"
+            )?.answer?.[0]?.valueBoolean ?? false
+          );
+        },
+      },
+      {
+        index: 5,
+        filter: (resource) => {
+          return (
+            (resource?.item ?? [])?.find(
+              (e) => e.linkId == "viral-load-collection-confirmation"
+            )?.answer?.[0]?.valueBoolean ?? false
+          );
+        },
+      },
+    ]),
+    date: rawDate,
+  };
 }
 
 const getLocationData = (bundle: fhirR4.Bundle | undefined): LocationData[] => {
@@ -128,13 +152,33 @@ const getLocationData = (bundle: fhirR4.Bundle | undefined): LocationData[] => {
 
 const getResults = (
   bundle: fhirR4.Bundle | undefined,
-  summary: string[]
+  summary: string[],
+  filters: {
+    index: number;
+    filter: (resource?: fhirR4.QuestionnaireResponse) => boolean;
+  }[]
 ): SummaryItem[] => {
   if (bundle == undefined) {
     return [];
   }
   return (
     bundle.entry?.map((entry, idx) => {
+      const filter = filters.find((e) => e.index == idx)?.filter;
+      if (filter) {
+        const items = (entry.resource as fhirR4.Bundle)?.entry ?? [];
+        const unique = [
+          ...new Map(
+            items.map((v) => [
+              (v.resource as fhirR4.QuestionnaireResponse).subject?.reference,
+              v.resource as fhirR4.QuestionnaireResponse,
+            ])
+          ).values(),
+        ];
+        return {
+          name: summary[idx],
+          value: unique?.filter(filter).length ?? 0,
+        };
+      }
       return {
         name: summary[idx],
         value: (entry.resource as fhirR4.Bundle)?.total ?? 0,

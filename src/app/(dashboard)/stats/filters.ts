@@ -1,3 +1,4 @@
+import { fhirR4 } from "@smile-cdr/fhirts";
 import { QueryParam, fixDate } from "./model";
 import { format } from "date-fns";
 
@@ -10,7 +11,7 @@ export const createQuestionnaireResponseFilters = (
   questionnaire: string,
   date: string | string[] | null,
   baseFilter: Record<string, string>[],
-  hasCount = true
+  hasCount = true,
 ) => {
   const query = new QueryParam({
     questionnaire: questionnaire,
