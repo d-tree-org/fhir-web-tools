@@ -1,5 +1,6 @@
 import React from "react";
 import { fetchData } from "./fetch";
+import Link from "next/link";
 
 type Props = {
   params: { id: string };
@@ -11,8 +12,9 @@ const Visits = async ({ params: { id } }: Props) => {
     <div className="container">
       <div className="flex flex-col gap-4 w-full">
         {data?.map((item) => (
-          <div
+          <Link
             key={item.id}
+            href={`/visit/${item.id}`}
             className="card card-compact bg-base-100 shadow-xl w-full"
           >
             <div className="card-body">
@@ -26,7 +28,7 @@ const Visits = async ({ params: { id } }: Props) => {
               </div>
               <p>{item.period?.toString()}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
