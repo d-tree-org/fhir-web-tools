@@ -24,6 +24,20 @@ export interface FilterParams {
 
 export const patientFilters: Filter[] = [
   {
+    id: "filter-by-location",
+    name: "Search by Location",
+    template: "_tag_location",
+    isObject: true,
+    params: [
+      {
+        name: "location",
+        title: "Enter facility",
+        type: FilterParamType.select,
+        prefillKey: "locations",
+      },
+    ],
+  },
+  {
     id: "patient-search-by-first-name",
     name: "Search by Firstname",
     template: "given={name}",

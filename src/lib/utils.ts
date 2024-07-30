@@ -34,3 +34,13 @@ export function eachDayOfInterval({
 
   return days;
 }
+
+export const paramGenerator = (
+  resources: string,
+  params: Record<string, string | number | string>
+) => {
+  return `${resources}?${Object.keys(params)
+    .map((key) => `${key}=${params[key]}`)
+    .join("&")}`;
+};
+

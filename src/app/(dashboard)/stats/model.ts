@@ -5,8 +5,11 @@ export const fixDate = (date: string | string[]) => {
 
 export class QueryParam {
   queries: Map<string, string> = new Map();
-  constructor(values: Record<string, string>) {
+  encodeUrl: boolean = false;
+
+  constructor(values: Record<string, string>, encodeUrl: boolean = false) {
     this.from(values);
+    this.encodeUrl = encodeUrl;
   }
 
   add(key: string, value: any) {
@@ -49,9 +52,11 @@ export class QueryParam {
     const query = Array.from(this.queries)
       .map(([key, value]) => {
         if (key.includes("[")) {
-          return `${key.split("[")[0]}=${value}`;
+          return `${key.split("[")[0]}=${
+            this.encodeUrl ? encodeURIComponent(value) : value
+          }`;
         }
-        return `${key}=${value}`;
+        return `${key}=${this.encodeUrl ? encodeURIComponent(value) : value}`;
       })
       .join("&");
     return `${resources}?${query}`;

@@ -1,7 +1,7 @@
 "use server";
 
 import { fetchBundle } from "@/lib/fhir/bundle";
-import { LocationData, SummaryItem } from "@/lib/models/types";
+import { SummaryItem } from "@/lib/models/types";
 import { FilterFormData } from "@/model/filters";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { fixDate } from "./model";
@@ -10,16 +10,10 @@ import {
   createQuestionnaireResponseFilters,
 } from "./filters";
 import { eachDayOfInterval } from "@/lib/utils";
+import { fetchLocations } from "@/lib/api/server";
 
 export async function fetchRequiredData() {
-  const locationQuery = paramGenerator("/Location", {
-    _count: 100,
-    type: "https://d-tree.org/fhir/location-type|facility",
-  });
-  var bundle = await fetchBundle([locationQuery]);
-  const locations = getLocationData(
-    bundle.entry?.[0]?.resource as fhirR4.Bundle
-  );
+  const locations = await fetchLocations();
   return {
     locations,
   };
@@ -99,9 +93,15 @@ export async function fetchData(formData: FormData) {
       baseFilter,
       false
     ),
-    createPatientFilters(["newly-diagnosed-client"], null, baseFilter, true),
-    createPatientFilters(["client-already-on-art"], null, baseFilter, true),
-    createPatientFilters(["exposed-infant"], null, baseFilter, true),
+    createPatientFilters(["newly-diagnosed-client"], null, baseFilter, {
+      hasCount: true,
+    }),
+    createPatientFilters(["client-already-on-art"], null, baseFilter, {
+      hasCount: true,
+    }),
+    createPatientFilters(["exposed-infant"], null, baseFilter, {
+      hasCount: true,
+    }),
     createQuestionnaireResponseFilters(
       "patient-finish-visit",
       rawDate,
@@ -181,20 +181,6 @@ export async function fetchData(formData: FormData) {
   };
 }
 
-const getLocationData = (bundle: fhirR4.Bundle | undefined): LocationData[] => {
-  if (bundle == undefined) {
-    return [];
-  }
-  return (
-    bundle.entry?.map((entry) => {
-      return {
-        id: entry.resource?.id ?? "",
-        name: (entry.resource as fhirR4.Location)?.name ?? "",
-      };
-    }) ?? []
-  );
-};
-
 const getResults = (
   bundle: fhirR4.Bundle | undefined,
   summary: string[],
@@ -230,13 +216,4 @@ const getResults = (
       };
     }) ?? []
   );
-};
-
-const paramGenerator = (
-  resources: string,
-  params: Record<string, string | number | string>
-) => {
-  return `${resources}?${Object.keys(params)
-    .map((key) => `${key}=${params[key]}`)
-    .join("&")}`;
 };

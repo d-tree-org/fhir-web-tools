@@ -1,5 +1,4 @@
-import { fhirR4 } from "@smile-cdr/fhirts";
-import { QueryParam, fixDate } from "./model";
+import { QueryParam } from "./model";
 import { format } from "date-fns";
 
 type PatientType =
@@ -50,13 +49,24 @@ export const createPatientFilters = (
   types: PatientType[] | undefined = undefined,
   date: string | string[] | null,
   baseFilter: Record<string, string>[],
-  onlyActive = false
+  options: {
+    onlyActive?: boolean;
+    hasCount?: boolean;
+    formatUrl?: boolean;
+  } = {
+    hasCount: true,
+    onlyActive: false,
+    formatUrl: false,
+  }
 ) => {
-  const query = new QueryParam({
-    _summary: "count",
-  });
+  const query = new QueryParam({}, options.formatUrl);
+
+  if (options.hasCount == true) {
+    query.add("_summary", "count");
+  }
+
   query.fromArray(baseFilter);
-  if (onlyActive) {
+  if (options.onlyActive == true) {
     query.add("active", true);
   }
   query.remove("date");
