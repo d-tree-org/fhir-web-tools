@@ -1,13 +1,17 @@
 "use server";
 
-import { pushResourceBundle } from "@/lib/fhir/bundle";
+import { BinaryPatchData, pushResourceBundle } from "@/lib/fhir/bundle";
 import { fetchCarePlan } from "./fetch";
-import { CarePlanData, CarePlanDataActivity } from "../../../../lib/models/types";
+import {
+  CarePlanData,
+  CarePlanDataActivity,
+} from "../../../../lib/models/types";
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { mapCarePlanToTask } from "@/lib/fhir/tasks";
+import { createJsonPatchUpdate } from "@/lib/utils";
 
 export const fixTasks = async (formData: FormData) => {
-  const resourcesToUpdate: fhirR4.Resource[] = [];
+  const resourcesToUpdate: (fhirR4.Resource | BinaryPatchData)[] = [];
   const data = JSON.parse(formData.getAll("data")[0] as string) as {
     careplan: CarePlanData;
     items: CarePlanDataActivity[];
@@ -26,6 +30,7 @@ export const fixTasks = async (formData: FormData) => {
       const task = creatNewTask(data.careplan, activity);
       resourcesToUpdate.push(task);
     } else {
+
       if (!activity.isTaskAndCarePlanSameStatus && activity.taskReference) {
         activity.taskStatus = mapCarePlanToTask(
           activity.carePlanActivityStatus
@@ -53,6 +58,18 @@ export const fixTasks = async (formData: FormData) => {
       activity.detail.status = mapCarePlan.get(taskId)
         ?.carePlanActivityStatus as any;
       carePlan.activity![index] = activity;
+      const taskUpdateBundle = {
+        path: `Task/${taskId}`,
+        isBinary: true,
+        data: createJsonPatchUpdate([
+          {
+            op: "replace",
+            path: "/status",
+            value: mapCarePlan.get(taskId)?.taskStatus,
+          },
+        ]),
+      };
+      resourcesToUpdate.push(taskUpdateBundle);
     }
   }
   if (mapCarePlan.size > 0) {

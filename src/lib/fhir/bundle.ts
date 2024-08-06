@@ -3,17 +3,32 @@ import { fhirServer } from "../api/axios";
 import { AxiosError } from "axios";
 import { IBundle } from "@smile-cdr/fhirts/dist/FHIR-R4/interfaces/IBundle";
 
-export const pushResourceBundle = async (resources: fhirR4.Resource[]) => {
+export type BinaryPatchData = {
+  data: fhirR4.Binary;
+  path: string;
+  isBinary: boolean;
+};
+
+export const pushResourceBundle = async (
+  resources: (fhirR4.Resource | BinaryPatchData)[]
+) => {
   try {
     const bundle = new fhirR4.Bundle();
     bundle.type = "transaction";
     const entrries: fhirR4.BundleEntry[] = [];
     for (const resource of resources) {
       const entry = new fhirR4.BundleEntry();
-      entry.resource = resource;
-      entry.request = new fhirR4.BundleRequest();
-      entry.request.method = "PUT";
-      entry.request.url = `${resource.resourceType}/${resource.id}`;
+      if ("isBinary" in resource) {
+        entry.resource = resource.data;
+        entry.request = new fhirR4.BundleRequest();
+        entry.request.method = "PATCH";
+        entry.request.url = resource.path;
+      } else {
+        entry.resource = resource;
+        entry.request = new fhirR4.BundleRequest();
+        entry.request.method = "PUT";
+        entry.request.url = `${resource.resourceType}/${resource.id}`;
+      }
       entrries.push(entry);
     }
 
@@ -48,7 +63,7 @@ export const fetchBundle = async (
     };
   });
   console.log(JSON.stringify(bundle));
-  
+
   const response = await fhirServer.post("/", bundle);
   return response.data;
 };

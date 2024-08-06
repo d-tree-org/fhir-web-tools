@@ -149,19 +149,19 @@ export const CarePlanContainer = ({ data, action }: Props) => {
                     <div className="badge badge-accent">Scheduled Task</div>
                   )}
                 </div>
-              </summary>
-              <div className="collapse-content">
-                <div className="flex flex-col p-2">
-                  <div className="flex flex-row gap-2">
-                    <span className="badge badge-secondary">
-                      CarePlan Status: {activity.carePlanActivityStatus}
-                    </span>
-                    <span className="badge badge-secondary">
-                      Task Status: {activity.taskStatus}
-                    </span>
+                <div className="">
+                  <div className="flex flex-col p-2">
+                    <div className="flex flex-row gap-2">
+                      <span className="badge badge-neutral p-2">
+                        CarePlan Status: {activity.carePlanActivityStatus}
+                      </span>
+                      <span className="badge badge-primary p-2">
+                        Task Status: {activity.taskStatus}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </summary>
             </details>
           );
         })}

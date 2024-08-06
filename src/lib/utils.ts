@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { addDays, subMinutes, startOfDay } from "date-fns";
+import { fhirR4 } from "@smile-cdr/fhirts";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -42,5 +43,13 @@ export const paramGenerator = (
   return `${resources}?${Object.keys(params)
     .map((key) => `${key}=${params[key]}`)
     .join("&")}`;
+};
+
+export const createJsonPatchUpdate = (data: any) => {
+  const binary = new fhirR4.Binary();
+  binary.contentType = "application/json-patch+json";
+  binary.resourceType = "Binary";
+  binary.data = Buffer.from(JSON.stringify(data)).toString("base64");
+  return binary;
 };
 
