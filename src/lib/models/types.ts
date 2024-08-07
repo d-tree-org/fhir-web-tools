@@ -2,6 +2,7 @@ import { fhirR4 } from "@smile-cdr/fhirts";
 
 export type CarePlanData = {
   id: string;
+  version: number;
   title?: string;
   patientId: string;
   requester?: string;

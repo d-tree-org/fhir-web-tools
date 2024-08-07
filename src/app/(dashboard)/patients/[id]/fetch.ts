@@ -36,13 +36,15 @@ export const fetchCarePlan = async (
   }
 };
 
-const createDetails = async (
+
+export const createDetails = async (
   patienyId: string,
   carePlan: fhirR4.CarePlan
 ): Promise<CarePlanData> => {
   const tasks = await getTasksFromCarePlan(carePlan);
-  return {
+  const plan: CarePlanData = {
     id: carePlan.id ?? "",
+    version: Number.parseInt(carePlan.meta?.versionId ?? "1"),
     author: carePlan.author?.display,
     tags: carePlan?.meta?.tag ?? [],
     title: carePlan.title,
@@ -56,6 +58,7 @@ const createDetails = async (
           "https://d-tree.org/fhir/care-plan-visit-number"
       )?.coding?.[0].code ?? "NA",
   };
+  return plan;
 };
 
 const getTasksFromCarePlan = async (

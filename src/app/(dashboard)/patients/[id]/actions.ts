@@ -1,7 +1,7 @@
 "use server";
 
 import { BinaryPatchData, pushResourceBundle } from "@/lib/fhir/bundle";
-import { fetchCarePlan } from "./fetch";
+import { createDetails, fetchCarePlan } from "./fetch";
 import {
   CarePlanData,
   CarePlanDataActivity,
@@ -9,6 +9,7 @@ import {
 import { fhirR4 } from "@smile-cdr/fhirts";
 import { mapCarePlanToTask } from "@/lib/fhir/tasks";
 import { createJsonPatchUpdate } from "@/lib/utils";
+import { fhirServer } from "@/lib/api/axios";
 
 export const fixTasks = async (formData: FormData) => {
   const resourcesToUpdate: (fhirR4.Resource | BinaryPatchData)[] = [];
@@ -30,7 +31,6 @@ export const fixTasks = async (formData: FormData) => {
       const task = creatNewTask(data.careplan, activity);
       resourcesToUpdate.push(task);
     } else {
-
       if (!activity.isTaskAndCarePlanSameStatus && activity.taskReference) {
         activity.taskStatus = mapCarePlanToTask(
           activity.carePlanActivityStatus
@@ -78,6 +78,33 @@ export const fixTasks = async (formData: FormData) => {
   const bundle = pushResourceBundle(resourcesToUpdate);
   const refetchedCarePlan = await fetchCarePlan(data.careplan.patientId);
   return refetchedCarePlan?.carePlanData;
+};
+
+export const fetchCarePlanVersion = async (
+  id: string,
+  version: number
+): Promise<CarePlanData | null> => {
+  try {
+    const res = await fhirServer.get(`/CarePlan/${id}/_history/${version}`);
+    return await createDetails(id, res.data);
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const setCurrentVersion = async (
+  id: string,
+  version: number
+): Promise<CarePlanData | null> => {
+  try {
+    const res = await fhirServer.get(`/CarePlan/${id}/_history/${version}`);
+    await fhirServer.put(`/CarePlan/${id}`, res.data);
+    return await createDetails(id, res.data);
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 };
 
 const creatNewTask = (

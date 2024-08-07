@@ -1,5 +1,4 @@
-import { CarePlanContainer } from "./components/careplanContainer";
-import { fixTasks } from "./actions";
+import { fetchCarePlanVersion, fixTasks, setCurrentVersion } from "./actions";
 import { fetchCarePlan } from "./fetch";
 import { CarePlanData } from "../../../../lib/models/types";
 import { fhirServer } from "@/lib/api/axios";
@@ -12,6 +11,7 @@ import { fhirR4 } from "@smile-cdr/fhirts";
 import Duplicates from "./components/duplicates";
 import PatientInfo from "./components/patientInfo";
 import Link from "next/link";
+import CareplanViewer from "@/components/careplan/careplan-viewer";
 
 export const maxDuration = 60;
 
@@ -64,7 +64,12 @@ export default async function Page({ params }: { params: { id: string } }) {
           <TabPanels className="mt-3">
             <TabPanel key="general" className="rounded-xl bg-white/5 p-3">
               {carePlan && (
-                <CarePlanContainer data={carePlan} action={fixTasks} />
+                <CareplanViewer
+                  data={carePlan}
+                  fixCarePlan={fixTasks}
+                  toVersion={fetchCarePlanVersion}
+                  setCurrentVersion={setCurrentVersion}
+                />
               )}
               {!carePlan && (
                 <div className="flex flex-col gap-4 w-full p-8">

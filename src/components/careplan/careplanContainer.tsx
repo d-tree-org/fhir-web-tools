@@ -2,13 +2,23 @@
 
 import { CarePlanData, CarePlanDataActivity } from "@/lib/models/types";
 import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
 
 type Props = {
   action: (data: FormData) => Promise<any>;
+  toVersion: (version: number) => void;
   data: CarePlanData;
+  latestVersion: number;
+  setCurrentVersion: (version: number) => void;
 };
 
-export const CarePlanContainer = ({ data, action }: Props) => {
+export const CarePlanContainer = ({
+  data,
+  action,
+  toVersion,
+  latestVersion,
+  setCurrentVersion,
+}: Props) => {
   const [careplan, setCarePlan] = useState<CarePlanData>(data);
   const [items, setItems] = useState<CarePlanDataActivity[]>();
   const [selectFix, setSelectFix] = useState<boolean>(false);
@@ -95,7 +105,17 @@ export const CarePlanContainer = ({ data, action }: Props) => {
         </div>
       )}
       <div className="flex flex-col gap-4">
-        <div>{careplan && <CarePlanSummary careplan={careplan} />}</div>
+        <div>
+          {careplan && (
+            <CarePlanSummary
+              careplan={careplan}
+              lastestVersion={latestVersion}
+              setCurrentVersion={setCurrentVersion}
+              previous={() => toVersion(careplan.version - 1)}
+              next={() => toVersion(careplan.version + 1)}
+            />
+          )}
+        </div>
         <h5 className="scroll-m-20 text-4xl font-bold tracking-tight">Tasks</h5>
         {careplan.activities?.map((activity: CarePlanDataActivity) => {
           return (
@@ -170,12 +190,47 @@ export const CarePlanContainer = ({ data, action }: Props) => {
   );
 };
 
-const CarePlanSummary = ({ careplan }: { careplan: CarePlanData }) => {
+const CarePlanSummary = ({
+  careplan,
+  lastestVersion,
+  previous,
+  next,
+  setCurrentVersion,
+}: {
+  careplan: CarePlanData;
+  lastestVersion: number;
+  previous: () => void;
+  next: () => void;
+  setCurrentVersion: (version: number) => void;
+}) => {
   return (
     <div>
       <details className="collapse bg-base-200">
         <summary className="collapse-title text-xl font-medium">
-          View Care Plan Details
+          <div className="flex flex-row justify-between w-full items-center">
+            <span>View Care Plan Details</span>
+            <div className="flex flex-row gap-2 items-center">
+              {careplan.version != lastestVersion && (
+                <Button onClick={() => setCurrentVersion(careplan.version)}>
+                  Set as Current version
+                </Button>
+              )}
+              {careplan.version > 1 && (
+                <Button variant="link" onClick={previous}>
+                  {" "}
+                  {"< "} Previous
+                </Button>
+              )}
+              <span className="badge badge-primary">
+                Version: {careplan.version}
+              </span>
+              {careplan.version < lastestVersion && (
+                <Button variant="link" onClick={next}>
+                  Next {" >"}
+                </Button>
+              )}
+            </div>
+          </div>
         </summary>
         <div className="collapse-content">
           <h6>{careplan.title}</h6>
