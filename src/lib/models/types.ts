@@ -8,6 +8,10 @@ export type CarePlanData = {
   requester?: string;
   author?: string;
   visitNumber: string;
+  period: {
+    start?: string | Date | undefined;
+    end: string | Date | undefined;
+  };
   tags: fhirR4.Coding[];
   activities: CarePlanDataActivity[];
 };
@@ -26,14 +30,14 @@ export type CarePlanDataActivity = {
 export type LocationData = {
   id: string;
   name: string;
-}
+};
 
 export type SummaryResponse = {
-  summaries: SummaryItem[],
-  date: string | string[] | null
-}
+  summaries: SummaryItem[];
+  date: string | string[] | null;
+};
 
 export type SummaryItem = {
   name: string;
-  value: number
-}
+  value: number;
+};

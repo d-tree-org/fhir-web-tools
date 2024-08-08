@@ -36,7 +36,6 @@ export const fetchCarePlan = async (
   }
 };
 
-
 export const createDetails = async (
   patienyId: string,
   carePlan: fhirR4.CarePlan
@@ -51,6 +50,10 @@ export const createDetails = async (
     patientId: patienyId,
     activities: tasks,
     requester: carePlan.author?.display,
+    period: {
+      start: carePlan.period?.start?.toString() ?? "NA",
+      end: carePlan.period?.end?.toString() ?? "NA",
+    },
     visitNumber:
       carePlan.category?.find(
         (e) =>

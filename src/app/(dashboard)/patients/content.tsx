@@ -35,14 +35,14 @@ const Content = ({ locationMap }: Props) => {
                 <span className="badge">BirthDate: {patient.birthDate}</span>
               </div>
               {patient.phoneNumbers.map((value, index) => (
-                <div key={value.number} className="flex flex-row gap-2">
+                <div key={value.number} className="flex flex-row flex-wrap gap-2">
                   <span className="badge">
                     Phone {index + 1}: {value.number} -- Owner: {value.owner}
                   </span>
                 </div>
               ))}
               {patient.address.map((address, index) => (
-                <div key={address.facility} className="flex flex-row gap-2">
+                <div key={address.facility} className="flex flex-row flex-wrap gap-2">
                   <span className="badge">Location: {address.facility}</span>
                   <span className="badge">Physical: {address.physical}</span>
                 </div>

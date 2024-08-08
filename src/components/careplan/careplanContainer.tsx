@@ -3,6 +3,8 @@
 import { CarePlanData, CarePlanDataActivity } from "@/lib/models/types";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { format, formatISO } from "date-fns";
+import { AiOutlineDown as DownIcon } from "react-icons/ai";
 
 type Props = {
   action: (data: FormData) => Promise<any>;
@@ -208,7 +210,15 @@ const CarePlanSummary = ({
       <details className="collapse bg-base-200">
         <summary className="collapse-title text-xl font-medium">
           <div className="flex flex-row justify-between w-full items-center">
-            <span>View Care Plan Details</span>
+            <div className="flex flex-row gap-4">
+              {careplan.period.start && (
+                <span>{format(careplan.period.start, "PPP")}</span>
+              )}
+              -
+              {careplan.period.end && (
+                <span>{format(careplan.period.end, "PPP")}</span>
+              )}
+            </div>
             <div className="flex flex-row gap-2 items-center">
               {careplan.version != lastestVersion && (
                 <Button onClick={() => setCurrentVersion(careplan.version)}>
@@ -229,6 +239,7 @@ const CarePlanSummary = ({
                   Next {" >"}
                 </Button>
               )}
+              <DownIcon />
             </div>
           </div>
         </summary>
