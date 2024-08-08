@@ -1,17 +1,14 @@
-import Cryptr from "cryptr";
+import CryptoJS from "crypto-js";
 
 export function encrypt(text: any) {
   const secretKey = process.env.NEXTAUTH_SECRET ?? "secret";
-  const cryptr = new Cryptr(secretKey);
-
-  const encryptedString = cryptr.encrypt(text);
-  return encryptedString;
+  const ciphertext = CryptoJS.AES.encrypt(text, secretKey).toString();
+  return ciphertext;
 }
 
 export function decrypt(encryptedString: any) {
   const secretKey = process.env.NEXTAUTH_SECRET ?? "secret";
-  const cryptr = new Cryptr(secretKey);
-
-  const text = cryptr.decrypt(encryptedString);
-  return text;
+  const bytes = CryptoJS.AES.decrypt(encryptedString, secretKey);
+  const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+  return decryptedString;
 }

@@ -18,19 +18,15 @@ const actions = [
 
 export default async function Page() {
   return (
-    <main className="h-full w-full">
-      <main
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "70vh",
-        }}
-        className="gap-4"
-      >
+    <main className="h-full w-full container">
+      <main className="h-full w-full flex flex-row flex-wrap gap-4">
         {actions.map((action) => (
-          <Link key={action.link} href={action.link}>
-            <div className="card w-96 bg-base-100 shadow-xl">
+          <Link
+            key={action.link}
+            href={action.link}
+            className="w-full md:w-1/5"
+          >
+            <div className="card w-full bg-base-100 shadow-xl">
               <div className="card-body">
                 <h2 className="card-title">{action.name}</h2>
                 <div className="card-actions justify-end">
