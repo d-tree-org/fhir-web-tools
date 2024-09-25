@@ -1,5 +1,6 @@
 import Navbar from "@/components/navbar";
-import NextTopLoader from 'nextjs-toploader';
+import { TooltipProvider } from "@/components/ui/tooltip";
+import NextTopLoader from "nextjs-toploader";
 
 export default function DashboardLayout({
   children,
@@ -10,7 +11,7 @@ export default function DashboardLayout({
     <main>
       <Navbar />
       <NextTopLoader />
-      {children}
+      <TooltipProvider>{children}</TooltipProvider>
     </main>
   );
 }
