@@ -1,104 +1,47 @@
-import { fhirServer } from "@/lib/api/axios";
-import { BundleEntry } from "@/model/resources";
+import { fhirHelperServer } from "@/lib/api/axios";
+import { FacilityResultData } from "@/lib/models/helpers";
 
 export default async function Page({ params }: { params: { id: string } }) {
   const data = await fetchData(params.id);
   return (
     <div className="container">
-      <div className="stats shadow">
-        {data.map((location) => {
-          return (
-            <div key={location.id} className="stat">
-              <p className="stat-title">{location.title}</p>
-              <h2 className="stat-value text-primary">{location.count}</h2>
-            </div>
-          );
-        })}
+      <div className="prose prose-sm md:prose-base w-full max-w-4xl flex-grow pt-10">
+        <div className="flex flex-row flex-wrap gap-4">
+          {data.groups.map((group) => {
+            return (
+              <div key={group.groupKey} className="">
+                <h1 className="stat-group-title">{group.groupTitle}</h1>
+                <div className="stats shadow">
+                  <div className="stats stats-vertical md:stats-horizontal">
+                    {group.summaries.map((summary) => {
+                      return (
+                        <div key={summary.name} className="stat">
+                          <p className="stat-title">{summary.name}</p>
+                          <div className="stat-value text-primary">
+                            {summary.value}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 }
 
-const fetchData: (id: string) => Promise<CountSummary[]> = async (id) => {
+const fetchData: (id: string) => Promise<FacilityResultData> = async (id) => {
   try {
-    const entries: BundleEntry[] = [];
-    const titles = [
-      "Exposed Infants",
-      "Clients Already on ART",
-      "Newly Diagnosed Client",
-    ];
-    entries.push(
-      addFetch("/Patient", {
-        _tag: [
-          `http://smartregister.org/fhir/location-tag|${id}`,
-          "https://d-tree.org/fhir/patient-meta-tag|exposed-infant",
-        ],
-        _summary: "count",
-      })
+    const { data } = await fhirHelperServer.get<FacilityResultData>(
+      `/stats/facility/${id}`
     );
-
-    entries.push(
-      addFetch("/Patient", {
-        _tag: [
-          `http://smartregister.org/fhir/location-tag|${id}`,
-          "https://d-tree.org/fhir/patient-meta-tag|client-already-on-art",
-        ],
-        _summary: "count",
-      })
-    );
-
-    entries.push(
-      addFetch("/Patient", {
-        _tag: [
-          `http://smartregister.org/fhir/location-tag|${id}`,
-          "https://d-tree.org/fhir/patient-meta-tag|newly-diagnosed-client",
-        ],
-        _summary: "count",
-      })
-    );
-
-    const { data } = await fhirServer.post(`/`, {
-      resourceType: "Bundle",
-      type: "transaction",
-      entry: entries,
-    });
-
-    if (data == null) {
-      return [];
-    }
-
-    return data.entry.map((entry: any, index: number) => {
-      return {
-        id: entry.resource.id,
-        count: entry.resource.total,
-        title: titles[index],
-      };
-    });
+    return data;
   } catch (error) {
     console.log(error);
+    return { groups: [], date: "", generatedDate: "" };
   }
-};
-
-type CountSummary = {
-  id: string;
-  count: number;
-  title: string;
-};
-
-const addFetch = (path: string, params: Record<string, any>): BundleEntry => {
-  let query = "";
-  for (const key in params) {
-    const param = params[key];
-    if (Array.isArray(param)) {
-      for (const p of param) {
-        query += `${key}=${p}&`;
-      }
-    } else {
-      query += `${key}=${param}&`;
-    }
-  }
-  const url = `${path}?${query}`;
-  console.log(url);
-
-  return { request: { method: "GET", url: url } };
 };

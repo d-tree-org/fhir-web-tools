@@ -20,6 +20,7 @@
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@smile-cdr/fhirts": "^2.0.7",
+    "@tailwindcss/typography": "^0.5.15",
     "@tanstack/react-query": "^4.33.0",
     "@types/node": "20.5.7",
     "@types/react": "18.2.21",
