@@ -37,7 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^3.1.2",
     "lucide-react": "^0.271.0",
-    "next": "14.2.5",
+    "next": "14.2.13",
     "next-auth": "beta",
     "nextjs-toploader": "^1.6.12",
     "postcss": "8.4.29",
