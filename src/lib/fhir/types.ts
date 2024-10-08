@@ -15,4 +15,9 @@ export type Patient = {
         number: string,
         owner: string,
     }[],
+    links: {
+        name: string,
+        id: string,
+        initials: string;
+    }[]
 }
