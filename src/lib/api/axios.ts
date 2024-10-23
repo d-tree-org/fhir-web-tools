@@ -9,10 +9,18 @@ export const fhirServer = axios.create({
   },
 });
 
+export const fhirHelperServer = axios.create({
+  baseURL: process.env.FHIR_HELPER_SERVICE,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
 fhirServer.interceptors.request.use(
   async (config) => {
     const token = await getAccessToken();
-    
+
     config.headers.Authorization = `Bearer ${token}`.trim();
     return config;
   },
