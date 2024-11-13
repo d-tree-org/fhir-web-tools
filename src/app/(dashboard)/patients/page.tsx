@@ -6,7 +6,7 @@ import Content from "./content";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { q: string };
+  searchParams: Promise<{ q: string }>;
 }) {
   const data = await fetchRequiredData();
   return (

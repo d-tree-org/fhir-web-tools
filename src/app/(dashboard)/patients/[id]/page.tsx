@@ -22,12 +22,13 @@ type TabItem = {
   show: boolean;
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const {
-    carePlanData: carePlan,
-    patient,
-    duplicates,
-  } = await fetchData(params.id);
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const { carePlanData: carePlan, patient, duplicates } = await fetchData(id);
 
   const tabs: TabItem[] = [
     { title: "Care Plan", id: "general", show: true },
@@ -56,7 +57,7 @@ export default async function Page({ params }: { params: { id: string } }) {
                 </Tab>
               ))}
             <div className="flex flex-row justify-end flex-1">
-              <Link href={`${params.id}/visits`} className="btn btn-secondary">
+              <Link href={`${id}/visits`} className="btn btn-secondary">
                 Visits
               </Link>
             </div>

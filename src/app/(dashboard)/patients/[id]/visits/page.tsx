@@ -3,10 +3,11 @@ import { fetchData } from "./fetch";
 import Link from "next/link";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-const Visits = async ({ params: { id } }: Props) => {
+const Visits = async ({ params }: Props) => {
+  const { id } = await params;
   const data = await fetchData(id);
   return (
     <div className="container">

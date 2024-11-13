@@ -3,10 +3,11 @@ import { fetchData, onCarePlanStatusChange } from "./action";
 import Components from "./component";
 
 type Props = {
-  params: { careplan: string };
+  params: Promise<{ careplan: string }>;
 };
 
-const Page = async ({ params: { careplan } }: Props) => {
+const Page = async ({ params }: Props) => {
+  const { careplan } = await params;
   const data = await fetchData(careplan);
   return (
     <div className="container">
