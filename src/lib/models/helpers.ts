@@ -16,3 +16,10 @@ export type SummaryItem = {
   name: string;
   value: number;
 };
+
+
+export type FacilityTracingData = {
+  total: number;
+  homeTotal: number;
+  phoneTotal: number;
+}
