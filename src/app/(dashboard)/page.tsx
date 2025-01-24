@@ -14,6 +14,10 @@ const actions = [
     name: "Stats",
     link: "/stats",
   },
+  {
+    name: "Scheduled Jobs",
+    link: "/jobs",
+  },
 ];
 
 export default async function Page() {
