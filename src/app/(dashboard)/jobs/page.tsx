@@ -24,6 +24,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Loader from "@/components/loader";
+import { AlertCircle } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Type definitions
 interface Job {
@@ -58,6 +61,18 @@ const fetchUpcomingJobs = async (): Promise<UpcomingJob[]> => {
   return response.data;
 };
 
+function FetchError() {
+  return (
+    <Alert variant="destructive">
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>
+        Something went wrong while fetching the data
+      </AlertDescription>
+    </Alert>
+  );
+}
+
 const fetchJobHistory = async (
   jobName: string,
   jobGroup: string
@@ -76,7 +91,11 @@ function JobHistorySection({
   jobName: string;
   jobGroup: string;
 }) {
-  const { data: jobHistory, isLoading } = useQuery<JobHistory[]>({
+  const {
+    data: jobHistory,
+    isLoading,
+    isError,
+  } = useQuery<JobHistory[]>({
     queryKey: ["quartzJobs", "history", jobName, jobGroup],
     queryFn: async () => await fetchJobHistory(jobName, jobGroup),
   });
@@ -102,6 +121,18 @@ function JobHistorySection({
           {isLoading && (
             <TableRow>
               <Loader />
+            </TableRow>
+          )}
+          {jobHistory?.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5}>No history found</TableCell>
+            </TableRow>
+          )}
+          {isError && (
+            <TableRow>
+              <TableCell colSpan={5}>
+                <FetchError />
+              </TableCell>
             </TableRow>
           )}
           {jobHistory?.map((history) => (
@@ -139,15 +170,21 @@ function JobHistorySection({
 
 export default function QuartzJobManagement() {
   // Fetch active jobs
-  const { data: activeJobs, isLoading: activeJobsLoading } = useQuery<Job[]>({
+  const {
+    data: activeJobs,
+    isLoading: activeJobsLoading,
+    isError: activeJobsError,
+  } = useQuery<Job[]>({
     queryKey: ["quartzJobs", "active"],
     queryFn: fetchActiveJobs,
   });
 
   // Fetch upcoming jobs
-  const { data: upcomingJobs, isLoading: upcomingJobsLoading } = useQuery<
-    UpcomingJob[]
-  >({
+  const {
+    data: upcomingJobs,
+    isLoading: upcomingJobsLoading,
+    isError: upcomingJobsError,
+  } = useQuery<UpcomingJob[]>({
     queryKey: ["quartzJobs", "upcoming"],
     queryFn: fetchUpcomingJobs,
   });
@@ -185,6 +222,18 @@ export default function QuartzJobManagement() {
                 {activeJobsLoading && (
                   <TableRow>
                     <Loader />
+                  </TableRow>
+                )}
+                {activeJobs?.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4}>No active jobs found</TableCell>
+                  </TableRow>
+                )}
+                {activeJobsError && (
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      <FetchError />
+                    </TableCell>
                   </TableRow>
                 )}
                 {activeJobs?.map((job) => (
@@ -226,6 +275,18 @@ export default function QuartzJobManagement() {
                 {upcomingJobsLoading && (
                   <TableRow>
                     <Loader />
+                  </TableRow>
+                )}
+                {upcomingJobsError && (
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      <FetchError />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {upcomingJobs?.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4}>No upcoming jobs found</TableCell>
                   </TableRow>
                 )}
                 {upcomingJobs?.map((job, index) => (
